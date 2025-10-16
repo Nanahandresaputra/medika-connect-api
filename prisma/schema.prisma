@@ -14,7 +14,103 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum user_role {
+  customer
+  admin
+}
+
 model Users {
-  id BigInt @id @unique @default(autoincrement())
-  // ONPROGRESSS
+  id       Int       @id @unique @default(autoincrement())
+  name     String
+  email    String    @unique
+  password String
+  role     user_role
+  status   Int
+
+  auth    Auth[]
+  patient Patient[]
+
+  @@map("users")
+}
+
+model Doctor {
+  id                Int    @id @unique @default(autoincrement())
+  username          String
+  password          String
+  name              String
+  code_doctor       String
+  phone_number      Int
+  address           String
+  email             String
+  specialization_id Int
+  status            Int
+
+  auth           Auth[]
+  schedule       Schedule[]
+  appoitment     Appoitment[]
+  specialization Specialization @relation(fields: [specialization_id], references: [id])
+
+  @@map("doctor")
+}
+
+model Auth {
+  id        Int    @unique @default(autoincrement())
+  token     String
+  doctor_id Int?
+  user_id   Int?
+
+  users  Users?  @relation(fields: [user_id], references: [id])
+  doctor Doctor? @relation(fields: [doctor_id], references: [id])
+
+  @@map("auth")
+}
+
+model Specialization {
+  id   Int    @unique @default(autoincrement())
+  name String
+
+  doctor Doctor[]
+
+  @@map("specialization")
+}
+
+model Schedule {
+  id         Int      @unique @default(autoincrement())
+  date       String
+  time       String
+  doctor_id  Int
+  created_at DateTime
+
+  doctor Doctor @relation(fields: [doctor_id], references: [id])
+
+  @@map("schedule")
+}
+
+model Patient {
+  id             Int      @unique @default(autoincrement())
+  name           String
+  user_id        Int
+  id_card_number Int
+  birth_date     DateTime
+  birth_location String
+  phone_number   Int
+  address        String
+
+  user Users @relation(fields: [user_id], references: [id])
+
+  appoitment Appoitment[]
+
+  @@map("patient")
+}
+
+model Appoitment {
+  id         Int      @unique @default(autoincrement())
+  patient_id Int
+  doctor_id  Int
+  date_time  DateTime
+
+  patient Patient @relation(fields: [patient_id], references: [id])
+  doctor  Doctor  @relation(fields: [doctor_id], references: [id])
+
+  @@map("appoitment")
 }
