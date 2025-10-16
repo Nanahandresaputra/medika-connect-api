@@ -114,3 +114,10 @@ model Appoitment {
 
   @@map("appoitment")
 }
+
+model MediaInformation {
+  id      Int    @unique @default(autoincrement())
+  img_url String
+
+  @@map("media_information")
+}
