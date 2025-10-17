@@ -6,15 +6,15 @@ import { BcryptText } from './helpers.interface';
 
 @Injectable()
 export class HelpersService {
-  async bcryptEncrypted({ text }: BcryptText) {
-    const salt = config.key;
-    return await bcrypt.hash(text, salt);
+  bcryptEncrypted(pwd: string): string {
+    const salt = bcrypt.genSaltSync(10);
+    const encrypted = bcrypt.hashSync(pwd, salt);
+    return encrypted;
   }
 
-  async bcryptComapre({ text }: BcryptText) {
+  bcryptComapre(pwd: string, hash: string): boolean {
     const salt = config.key;
-    const hash = await bcrypt.hash(text, salt);
 
-    return await bcrypt.compare(text, hash);
+    return bcrypt.compareSync(pwd, hash);
   }
 }

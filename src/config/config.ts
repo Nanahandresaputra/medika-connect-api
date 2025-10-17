@@ -1,5 +1,6 @@
-import { ConfigInterface } from './config.interface';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: process.cwd() + `/.env.${process.env.NODE_ENV}` });
 
-export const config: ConfigInterface = {
-  key: process.env.KEY as string,
+export const config = {
+  key: process.env.SECRET_KEY as string,
 };
