@@ -8,6 +8,7 @@ import { PrismaConnectModule } from './prisma-connect/prisma-connect.module';
 import { HelpersModule } from './helpers/helpers.module';
 import { JwtModule } from '@nestjs/jwt';
 import { config } from './config/config';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { config } from './config/config';
     }),
     PrismaConnectModule,
     HelpersModule,
+    ScheduleModule,
   ],
   controllers: [],
   providers: [

@@ -89,7 +89,13 @@ export class UserService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    try {
+      await this.prisma.users.delete({ where: { id } });
+
+      return new SuccessResponseService().getResponse();
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 }

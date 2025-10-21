@@ -15,15 +15,25 @@ export class DoctorService {
   ) {}
   async create(createDoctorDto: CreateDoctorDto) {
     try {
-      await this.prisma.doctor.create({
-        data: {
-          ...createDoctorDto,
-          status: 1,
-          password: this.helpers.bcryptEncrypted(createDoctorDto.password),
-        },
+      const user = await this.prisma.users.findUnique({
+        where: { email: createDoctorDto.email },
       });
 
-      return new SuccessResponseService().getResponse();
+      if (user && user.email === createDoctorDto.email) {
+        return new ExceptionHandlerService().getResponse({
+          message: 'Unique constraint failed on the fields email',
+        });
+      } else {
+        await this.prisma.doctor.create({
+          data: {
+            ...createDoctorDto,
+            status: 1,
+            password: this.helpers.bcryptEncrypted(createDoctorDto.password),
+          },
+        });
+
+        return new SuccessResponseService().getResponse();
+      }
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }
@@ -53,16 +63,26 @@ export class DoctorService {
 
   async update(id: number, updateDoctorDto: UpdateDoctorDto) {
     try {
-      await this.prisma.doctor.update({
-        data: {
-          ...updateDoctorDto,
-          ...(updateDoctorDto.password && {
-            password: this.helpers.bcryptEncrypted(updateDoctorDto.password),
-          }),
-        },
-        where: { id },
+      const user = await this.prisma.users.findUnique({
+        where: { email: updateDoctorDto.email },
       });
-      return new SuccessResponseService().getResponse();
+
+      if (user && user.email === updateDoctorDto.email) {
+        return new ExceptionHandlerService().getResponse({
+          message: 'Unique constraint failed on the fields email',
+        });
+      } else {
+        await this.prisma.doctor.update({
+          data: {
+            ...updateDoctorDto,
+            ...(updateDoctorDto.password && {
+              password: this.helpers.bcryptEncrypted(updateDoctorDto.password),
+            }),
+          },
+          where: { id },
+        });
+        return new SuccessResponseService().getResponse();
+      }
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }
