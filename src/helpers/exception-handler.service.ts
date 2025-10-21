@@ -14,12 +14,20 @@ export class ExceptionHandlerService {
     });
     // throw new InternalServerErrorException();
 
+    const prismaError = [
+      // 'PrismaClientKnownRequestError',
+      'PrismaClientUnknownRequestError',
+      'PrismaClientRustPanicError',
+      'PrismaClientInitializationError',
+      'PrismaClientValidationError',
+    ];
+
     if (error?.name === 'PrismaClientKnownRequestError') {
       throw new BadRequestException(
         `Unique constraint failed on the fields ${error?.meta?.target?.toString()}`,
       );
-    } else if (error?.name === 'PrismaClientValidationError') {
-      throw new BadRequestException();
+    } else if (prismaError.includes(error?.name) || error?.message) {
+      throw new BadRequestException(error?.message);
     } else {
       throw new InternalServerErrorException();
     }

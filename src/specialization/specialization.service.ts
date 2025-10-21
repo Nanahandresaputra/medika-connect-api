@@ -20,19 +20,36 @@ export class SpecializationService {
     }
   }
 
-  findAll() {
-    return `This action returns all specialization`;
+  async findAll() {
+    try {
+      const specializationList = await this.prisma.specialization.findMany();
+
+      return new SuccessResponseService().getResponse(specializationList);
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} specialization`;
+  async update(id: number, updateSpecializationDto: UpdateSpecializationDto) {
+    try {
+      await this.prisma.specialization.update({
+        data: { name: updateSpecializationDto.name },
+        where: { id },
+      });
+
+      return new SuccessResponseService().getResponse();
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 
-  update(id: number, updateSpecializationDto: UpdateSpecializationDto) {
-    return `This action updates a #${id} specialization`;
-  }
+  async remove(id: number) {
+    try {
+      await this.prisma.specialization.delete({ where: { id } });
 
-  remove(id: number) {
-    return `This action removes a #${id} specialization`;
+      return new SuccessResponseService().getResponse();
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 }

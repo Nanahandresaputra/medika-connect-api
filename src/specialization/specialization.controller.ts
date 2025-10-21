@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { SpecializationService } from './specialization.service';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
@@ -19,6 +21,7 @@ export class SpecializationController {
 
   @UseGuards(AuthGuard)
   @Post()
+  @HttpCode(HttpStatus.OK)
   create(@Body() createSpecializationDto: CreateSpecializationDto) {
     return this.specializationService.create(createSpecializationDto);
   }
@@ -26,11 +29,6 @@ export class SpecializationController {
   @Get()
   findAll() {
     return this.specializationService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.specializationService.findOne(+id);
   }
 
   @Patch(':id')

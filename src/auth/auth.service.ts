@@ -21,30 +21,53 @@ export class AuthService {
         where: { email: loginDto.email },
       });
 
-      if (user) {
-        if (this.helpers.bcryptComapre(loginDto.password, user.password)) {
-          const token: string = this.jwtService.sign(
-            {
-              name: user.name,
-              id: user.id,
-              email: user.email,
-            },
-            {
-              secret: config.key,
-            },
-          );
-          const saveAuthData: AuthTableDataInterface = {
-            user_id: user.id,
-            doctor_id: null,
-            token,
-          };
-          await this.prisma.auth.create({ data: saveAuthData });
-          return new SuccessResponseService().getResponse({ token });
-        } else {
-          return new UnauthorizedException(
-            'Email or Passwor Invalid!',
-          ).getResponse();
-        }
+      const doctor = await this.prisma.doctor.findUnique({
+        where: { email: loginDto.email },
+      });
+
+      if (
+        user &&
+        this.helpers.bcryptComapre(loginDto.password, user.password)
+      ) {
+        const token: string = this.jwtService.sign(
+          {
+            name: user.name,
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          },
+          {
+            secret: config.key,
+          },
+        );
+        const saveAuthData: AuthTableDataInterface = {
+          user_id: user.id,
+          doctor_id: null,
+          token,
+        };
+        await this.prisma.auth.create({ data: saveAuthData });
+        return new SuccessResponseService().getResponse({ token });
+      } else if (
+        doctor &&
+        this.helpers.bcryptComapre(loginDto.password, doctor.password)
+      ) {
+        const token: string = this.jwtService.sign(
+          {
+            name: doctor.name,
+            id: doctor.id,
+            email: doctor.email,
+          },
+          {
+            secret: config.key,
+          },
+        );
+        const saveAuthData: AuthTableDataInterface = {
+          user_id: null,
+          doctor_id: doctor.id,
+          token,
+        };
+        await this.prisma.auth.create({ data: saveAuthData });
+        return new SuccessResponseService().getResponse({ token });
       } else {
         return new UnauthorizedException(
           'Email or Passwor Invalid!',

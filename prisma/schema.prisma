@@ -39,9 +39,9 @@ model Doctor {
   password          String
   name              String
   code_doctor       String
-  phone_number      Int
+  phone_number      String
   address           String
-  email             String
+  email             String @unique
   specialization_id Int
   status            Int
 
@@ -55,7 +55,7 @@ model Doctor {
 
 model Auth {
   id        Int    @unique @default(autoincrement())
-  token     String
+  token     String @unique
   doctor_id Int?
   user_id   Int?
 

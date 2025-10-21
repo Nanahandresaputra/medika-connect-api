@@ -15,16 +15,24 @@ export class UserService {
   ) {}
   async create(createUserDto: CreateUserDto) {
     try {
-      await this.prisma.users.create({
-        data: {
-          ...createUserDto,
-          password: this.helpers.bcryptEncrypted(createUserDto.password),
-          role: 'admin',
-          status: +1,
-        },
+      const doctor = await this.prisma.doctor.findUnique({
+        where: { email: createUserDto.email },
       });
-
-      return new SuccessResponseService().getResponse();
+      if (doctor?.email === createUserDto.email) {
+        return new ExceptionHandlerService().getResponse({
+          message: 'Unique constraint failed on the fields email',
+        });
+      } else {
+        await this.prisma.users.create({
+          data: {
+            ...createUserDto,
+            password: this.helpers.bcryptEncrypted(createUserDto.password),
+            role: 'admin',
+            status: +1,
+          },
+        });
+        return new SuccessResponseService().getResponse();
+      }
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }
@@ -52,8 +60,33 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      const doctor = await this.prisma.doctor.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (doctor?.email === updateUserDto.email) {
+        return new ExceptionHandlerService().getResponse({
+          message: 'Unique constraint failed on the fields email',
+        });
+      } else {
+        await this.prisma.users.update({
+          data: {
+            ...updateUserDto,
+            ...(updateUserDto.password && {
+              password: this.helpers.bcryptEncrypted(updateUserDto.password),
+            }),
+            role: 'admin',
+            status: +1,
+          },
+          where: { id },
+        });
+        return new SuccessResponseService().getResponse();
+      }
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 
   remove(id: number) {
