@@ -5,17 +5,18 @@ import {
   IsDateString,
   IsNotEmpty,
   IsNumber,
+  IsString,
   ValidateNested,
 } from 'class-validator';
 
 class DateDto {
-  @IsDateString()
+  @IsString()
   @IsNotEmpty()
   date: string;
 
-  @IsArray()
-  @ArrayMinSize(1)
-  time: string[];
+  @IsString()
+  @IsNotEmpty()
+  time: string;
 }
 
 export class CreateScheduleDto {

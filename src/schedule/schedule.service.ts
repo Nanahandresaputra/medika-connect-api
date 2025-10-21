@@ -8,8 +8,18 @@ import { SuccessResponseService } from 'src/helpers/success-response.service';
 @Injectable()
 export class ScheduleService {
   constructor(private prisma: PrismaService) {}
-  create(createScheduleDto: CreateScheduleDto) {
-    return 'This action adds a new schedule';
+  async create(createScheduleDto: CreateScheduleDto) {
+    try {
+      const sendData = createScheduleDto.schedules.map((data) => ({
+        doctor_id: createScheduleDto.doctor_id,
+        date: data.date,
+        time: data.time,
+      }));
+
+      return new SuccessResponseService().getResponse(sendData);
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 
   async findAllBydoctor(doctor_id: number) {
