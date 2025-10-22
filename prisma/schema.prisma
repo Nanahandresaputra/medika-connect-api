@@ -79,7 +79,8 @@ model Schedule {
   date       String
   time       String
   doctor_id  Int
-  created_at DateTime
+  created_at DateTime @default(now())
+  status     Int
 
   doctor Doctor @relation(fields: [doctor_id], references: [id])
 
@@ -108,6 +109,7 @@ model Appoitment {
   patient_id Int
   doctor_id  Int
   date_time  DateTime
+  created_at DateTime @default(now())
 
   patient Patient @relation(fields: [patient_id], references: [id])
   doctor  Doctor  @relation(fields: [doctor_id], references: [id])
@@ -116,8 +118,9 @@ model Appoitment {
 }
 
 model MediaInformation {
-  id      Int    @unique @default(autoincrement())
-  img_url String
+  id         Int      @unique @default(autoincrement())
+  img_url    String
+  created_at DateTime @default(now())
 
   @@map("media_information")
 }

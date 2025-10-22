@@ -26,8 +26,12 @@ export class ScheduleController {
 
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Query('doctor_id') doctor_id: string) {
-    return this.scheduleService.findAllBydoctor(+doctor_id);
+  findAll(
+    @Query('doctor_id') doctor_id: string,
+    @Query('specialization_id') specialization_id: string,
+    @Query('date') date: string,
+  ) {
+    return this.scheduleService.findAll(+doctor_id, +specialization_id, date);
   }
 
   @UseGuards(AuthGuard)
@@ -37,12 +41,12 @@ export class ScheduleController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch(':id')
+  @Patch(':doctor_id')
   update(
-    @Param('id') id: string,
+    @Param('doctor_id') doctor_id: string,
     @Body() updateScheduleDto: UpdateScheduleDto,
   ) {
-    return this.scheduleService.update(+id, updateScheduleDto);
+    return this.scheduleService.update(+doctor_id, updateScheduleDto);
   }
 
   @UseGuards(AuthGuard)

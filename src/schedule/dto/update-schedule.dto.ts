@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateScheduleDto } from './create-schedule.dto';
+import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateScheduleDto extends PartialType(CreateScheduleDto) {}
+export class UpdateScheduleDto {
+  @IsString()
+  @IsNotEmpty()
+  date: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsNotEmpty()
+  time: string[];
+}

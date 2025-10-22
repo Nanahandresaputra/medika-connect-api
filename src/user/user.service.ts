@@ -5,7 +5,7 @@ import { SuccessResponseService } from 'src/helpers/success-response.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { HelpersService } from 'src/helpers/helpers.service';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
-import { ResponseListUserObj } from './user.interface';
+import { ResponseListUserObj } from './interfaces/user.interface';
 
 @Injectable()
 export class UserService {

@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "appoitment" ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "media_information" ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "schedule" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP;

@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { SuccessResponseService } from 'src/helpers/success-response.service';
 import { HelpersService } from 'src/helpers/helpers.service';
-import { ResponseListDoctorObj } from './doctor.inerface';
+import { ResponseListDoctorObj } from './inerfaces/doctor.inerface';
 
 @Injectable()
 export class DoctorService {

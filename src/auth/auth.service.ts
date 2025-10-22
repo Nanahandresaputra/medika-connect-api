@@ -1,4 +1,4 @@
-import { AuthTableDataInterface } from './auth.interface';
+import { AuthTableDataInterface } from './interfaces/auth.interface';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from './dto/create-auth.dto';
 import { PrismaService } from 'src/prisma-connect/prisma.service';

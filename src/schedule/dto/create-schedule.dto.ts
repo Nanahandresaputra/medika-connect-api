@@ -14,9 +14,10 @@ class DateDto {
   @IsNotEmpty()
   date: string;
 
-  @IsString()
+  @IsArray()
+  @ArrayMinSize(1)
   @IsNotEmpty()
-  time: string;
+  time: string[];
 }
 
 export class CreateScheduleDto {
