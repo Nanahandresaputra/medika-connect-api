@@ -9,6 +9,7 @@ import { HelpersModule } from './helpers/helpers.module';
 import { JwtModule } from '@nestjs/jwt';
 import { config } from './config/config';
 import { ScheduleModule } from './schedule/schedule.module';
+import { PatientModule } from './patient/patient.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     PrismaConnectModule,
     HelpersModule,
     ScheduleModule,
+    PatientModule,
   ],
   controllers: [],
   providers: [

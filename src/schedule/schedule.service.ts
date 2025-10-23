@@ -8,7 +8,6 @@ import {
   ResponseListScheduleByDoctor,
   TimeDateInterface,
 } from './interfaces/schedule.interface';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -129,8 +128,49 @@ export class ScheduleService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} schedule`;
+  async findOneByDoctor(doctor_id: number) {
+    try {
+      const doctorData = await this.prisma.doctor.findUnique({
+        where: {
+          id: doctor_id,
+        },
+        select: {
+          id: true,
+          name: true,
+          specialization: true,
+          status: true,
+        },
+      });
+
+      const scheduleData = await this.prisma.schedule.findMany({
+        where: {
+          doctor_id,
+          status: 1,
+        },
+        select: { time: true, date: true },
+      });
+
+      const sendResp: ResponseListScheduleByDoctor = {
+        id: doctorData?.id as number,
+        name: doctorData?.name as string,
+        specialization: {
+          id: doctorData?.specialization.id as number,
+          name: doctorData?.specialization.name as string,
+        },
+        schedule: [...new Set(scheduleData.map((data) => data.date))].map(
+          (dateData) => ({
+            date: scheduleData.find((data) => data.date === dateData)?.date,
+            time: scheduleData
+              .filter((timeData) => timeData.date === dateData)
+              .map((timeData) => timeData.time),
+          }),
+        ) as TimeDateInterface[],
+      };
+
+      return new SuccessResponseService().getResponse(sendResp);
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 
   async update(doctor_id: number, updateScheduleDto: UpdateScheduleDto) {
@@ -248,9 +288,5 @@ export class ScheduleService {
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} schedule`;
   }
 }

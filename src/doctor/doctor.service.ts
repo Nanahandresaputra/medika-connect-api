@@ -87,14 +87,4 @@ export class DoctorService {
       return new ExceptionHandlerService().getResponse(error);
     }
   }
-
-  async remove(id: number) {
-    try {
-      await this.prisma.doctor.delete({ where: { id } });
-
-      return new SuccessResponseService().getResponse();
-    } catch (error) {
-      return new ExceptionHandlerService().getResponse(error);
-    }
-  }
 }

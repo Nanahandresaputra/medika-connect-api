@@ -35,9 +35,9 @@ export class ScheduleController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.scheduleService.findOne(+id);
+  @Get(':doctor_id')
+  findOne(@Param('doctor_id') doctor_id: string) {
+    return this.scheduleService.findOneByDoctor(+doctor_id);
   }
 
   @UseGuards(AuthGuard)
@@ -47,11 +47,5 @@ export class ScheduleController {
     @Body() updateScheduleDto: UpdateScheduleDto,
   ) {
     return this.scheduleService.update(+doctor_id, updateScheduleDto);
-  }
-
-  @UseGuards(AuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.scheduleService.remove(+id);
   }
 }
