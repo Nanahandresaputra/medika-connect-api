@@ -9,14 +9,17 @@ import {
   TimeDateInterface,
 } from './interfaces/schedule.interface';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { time } from 'console';
 
 @Injectable()
 export class ScheduleService {
   constructor(private prisma: PrismaService) {}
   async create(createScheduleDto: CreateScheduleDto) {
     try {
-      let initial: any = [];
+      let initial: TimeDateInterface[] = [];
+
+      const exitingSchedule = await this.prisma.schedule.findMany({
+        where: { doctor_id: createScheduleDto.doctor_id, status: 0 },
+      });
 
       createScheduleDto.schedules.forEach((data) => {
         data.time.forEach((dat) => {
@@ -30,7 +33,45 @@ export class ScheduleService {
         });
       });
 
-      await this.prisma.schedule.createMany({ data: initial });
+      const filterExiting = initial
+        .filter(
+          (data) =>
+            data.date ===
+              exitingSchedule.find((dat) => dat.date === data.date)?.date &&
+            data.time ===
+              exitingSchedule.find((dat) => dat.time === data.time)?.time,
+        )
+        .map((data) => ({
+          id: exitingSchedule.find(
+            (dat) => dat.date === data.date && dat.time === data.time,
+          )?.id,
+          ...data,
+        }));
+
+      if (filterExiting.length > 0) {
+        const updateDataExiting = filterExiting.map((data) =>
+          this.prisma.schedule.update({
+            data: { status: 1 },
+            where: { id: data.id, date: data.date, time: data.time as string },
+          }),
+        );
+
+        await this.prisma.$transaction(updateDataExiting);
+      }
+
+      const filterNotExiting = initial.filter(
+        (data) =>
+          data.date !==
+            exitingSchedule.find((dat) => dat.date === data.date)?.date ||
+          data.time !==
+            exitingSchedule.find((dat) => dat.time === data.time)?.time,
+      );
+
+      if (filterNotExiting.length > 0) {
+        await this.prisma.schedule.createMany({
+          data: initial as [],
+        });
+      }
 
       return new SuccessResponseService().getResponse();
     } catch (error) {
@@ -61,7 +102,7 @@ export class ScheduleService {
           ...(date && { date }),
           status: 1,
         },
-        select: { id: true, time: true, date: true },
+        select: { time: true, date: true },
       });
 
       const sendResp: ResponseListScheduleByDoctor[] = doctorData
@@ -71,7 +112,6 @@ export class ScheduleService {
           specialization: doctor.specialization,
           schedule: [...new Set(scheduleData.map((data) => data.date))].map(
             (dateData) => ({
-              id: scheduleData.find((data) => data.date === dateData)?.id,
               date: scheduleData.find((data) => data.date === dateData)?.date,
               time: scheduleData
                 .filter((timeData) => timeData.date === dateData)
@@ -96,7 +136,7 @@ export class ScheduleService {
   async update(doctor_id: number, updateScheduleDto: UpdateScheduleDto) {
     try {
       const scheduleDatas = await this.prisma.schedule.findMany({
-        where: { doctor_id, date: updateScheduleDto.date },
+        where: { doctor_id, date: updateScheduleDto.oldDate },
         select: {
           id: true,
           doctor_id: true,
@@ -106,77 +146,105 @@ export class ScheduleService {
         },
       });
 
-      const sendData: TimeDateInterface[] = updateScheduleDto.time.map(
-        (data) => ({
-          date: updateScheduleDto.date as string,
-          time: data as string,
-        }),
-      );
+      const exitingDate = await this.prisma.schedule.findMany({
+        where: { doctor_id, date: updateScheduleDto.date },
+      });
 
-      // const matchingData = sendData.map((data) => ({
-      //   id: scheduleDatas.find(
-      //     (dt) => dt.date === data.date && dt.time === data.time,
-      //   )?.id,
-      //   date: scheduleDatas.find(
-      //     (dt) => dt.date === data.date && dt.time === data.time,
-      //   )?.date,
-      //   dateReq: data.date,
-      //   time: scheduleDatas.find(
-      //     (dt) => dt.date === data.date && dt.time === data.time,
-      //   )?.time,
-      //   timeReq: data.time,
-      //   status: scheduleDatas.find(
-      //     (dt) => dt.date === data.date && dt.time === data.time,
-      //   )?.status,
-      // }));
-
-      const matchingData = scheduleDatas.map((data) => ({
-        id: data.id,
-        date: data.date,
-        dateReq: sendData.find((dat) => dat.date === data.date)?.date,
-        time: data.time,
-        timeReq: sendData.find((dat) => dat.time === data.time)?.time,
-        status: data.status,
-      }));
-
-      if (matchingData.length > 0) {
-        const multipleQuery = matchingData.map((datas) =>
-          this.prisma.schedule.update({
-            data: { status: datas.dateReq && datas.timeReq ? 1 : 0 },
-            where: { id: datas.id ?? 0 },
+      if (
+        updateScheduleDto.date !== updateScheduleDto.oldDate &&
+        exitingDate.filter((data) => data.status === 1).length > 0
+      ) {
+        return new ExceptionHandlerService().getResponse({
+          message: 'date is exsisting!',
+        });
+      } else {
+        const sendData: TimeDateInterface[] = updateScheduleDto.time.map(
+          (data) => ({
+            date: updateScheduleDto.date as string,
+            time: data as string,
           }),
         );
-        await this.prisma.$transaction(multipleQuery);
-      }
 
-      const createNewTime = sendData
-        .map((data) => ({
-          doctor_id,
-          date: scheduleDatas.find(
-            (dt) => dt.date === data.date && dt.time === data.time,
-          )?.date
-            ? null
-            : data.date,
-          time: scheduleDatas.find(
-            (dt) => dt.date === data.date && dt.time === data.time,
-          )?.time
-            ? null
-            : data.time,
-          status: 1,
-        }))
-        .filter((data) => data.date !== null && data.time !== null)
-        .map((data) => ({
-          doctor_id,
-          date: data.date as string,
-          time: data.time as string,
+        const matchingData = exitingDate.map((data) => ({
+          id: data.id,
+          date: data.date,
+          dateReq: exitingDate.find((dat) => dat.date === data.date)?.date,
+          time: data.time,
+          timeReq: exitingDate.find((dat) => dat.time === data.time)?.time,
           status: data.status,
         }));
 
-      if (createNewTime.length > 0) {
-        await this.prisma.schedule.createMany({ data: createNewTime });
-      }
+        if (matchingData.length > 0) {
+          const multipleQuery = matchingData.map((datas) =>
+            this.prisma.schedule.update({
+              data: {
+                status: datas.dateReq && datas.timeReq ? 1 : 0,
+              },
+              where: { id: datas.id ?? 0 },
+            }),
+          );
 
-      return new SuccessResponseService().getResponse();
+          await this.prisma.$transaction(multipleQuery);
+        }
+
+        const createNewTime = sendData
+          .map((data) => ({
+            doctor_id,
+            date: scheduleDatas.find(
+              (dt) => dt.date === data.date && dt.time === data.time,
+            )?.date
+              ? null
+              : data.date,
+            time: scheduleDatas.find(
+              (dt) => dt.date === data.date && dt.time === data.time,
+            )?.time
+              ? null
+              : data.time,
+            status: 1,
+          }))
+          .filter((data) => data.date !== null && data.time !== null)
+          .map((data) => ({
+            doctor_id,
+            date: data.date as string,
+            time: data.time as string,
+            status: data.status,
+          }))
+          .filter(
+            (data) =>
+              data.date !==
+                scheduleDatas.find((dat) => dat.date === data.date)?.date ||
+              data.time !==
+                scheduleDatas.find((dat) => dat.time === data.time)?.time,
+          )
+          .filter((data) => data.date === updateScheduleDto.oldDate);
+
+        if (createNewTime.length > 0) {
+          await this.prisma.schedule.createMany({ data: createNewTime });
+        }
+
+        const existingTimeInDate = await this.prisma.schedule.findMany({
+          where: { doctor_id, date: updateScheduleDto.date },
+        });
+
+        const newDataByDate = sendData
+          .map((data) => ({
+            doctor_id,
+            date: data.date as string,
+            time: data.time as string,
+            status: 1,
+          }))
+          .filter(
+            (data) =>
+              data.time !==
+              existingTimeInDate.find((dat) => dat.time === data.time)?.time,
+          );
+
+        if (createNewTime.length === 0) {
+          await this.prisma.schedule.createMany({ data: newDataByDate });
+        }
+
+        return new SuccessResponseService().getResponse();
+      }
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }
