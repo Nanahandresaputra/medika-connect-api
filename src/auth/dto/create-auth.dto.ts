@@ -11,3 +11,17 @@ export class LoginDto {
   @IsString()
   password: string;
 }
+
+export class RegisterDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+}

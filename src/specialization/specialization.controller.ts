@@ -32,6 +32,7 @@ export class SpecializationController {
   }
 
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
   update(
     @Param('id') id: string,
     @Body() updateSpecializationDto: UpdateSpecializationDto,

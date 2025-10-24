@@ -40,6 +40,7 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }

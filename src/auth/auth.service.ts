@@ -1,6 +1,6 @@
 import { AuthTableDataInterface } from './interfaces/auth.interface';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { LoginDto } from './dto/create-auth.dto';
+import { LoginDto, RegisterDto } from './dto/create-auth.dto';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
@@ -73,6 +73,23 @@ export class AuthService {
           'Email or Passwor Invalid!',
         ).getResponse();
       }
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
+  }
+
+  async register(registerDto: RegisterDto) {
+    try {
+      await this.prisma.users.create({
+        data: {
+          ...registerDto,
+          password: this.helpers.bcryptEncrypted(registerDto.password),
+          status: 1,
+          role: 'admin',
+        },
+      });
+
+      return new SuccessResponseService().getResponse();
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }

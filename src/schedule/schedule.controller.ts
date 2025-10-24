@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
@@ -20,6 +22,7 @@ export class ScheduleController {
 
   @UseGuards(AuthGuard)
   @Post()
+  @HttpCode(HttpStatus.OK)
   create(@Body() createScheduleDto: CreateScheduleDto) {
     return this.scheduleService.create(createScheduleDto);
   }
@@ -42,6 +45,7 @@ export class ScheduleController {
 
   @UseGuards(AuthGuard)
   @Patch(':doctor_id')
+  @HttpCode(HttpStatus.OK)
   update(
     @Param('doctor_id') doctor_id: string,
     @Body() updateScheduleDto: UpdateScheduleDto,
