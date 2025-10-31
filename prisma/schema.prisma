@@ -105,11 +105,12 @@ model Patient {
 }
 
 model Appoitment {
-  id         Int      @unique @default(autoincrement())
-  patient_id Int
-  doctor_id  Int
-  date_time  DateTime
-  created_at DateTime @default(now())
+  id              Int      @unique @default(autoincrement())
+  patient_id      Int
+  doctor_id       Int
+  date_time       DateTime
+  appoitment_code String
+  created_at      DateTime @default(now())
 
   patient Patient @relation(fields: [patient_id], references: [id])
   doctor  Doctor  @relation(fields: [doctor_id], references: [id])

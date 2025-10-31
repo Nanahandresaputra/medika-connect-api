@@ -17,4 +17,16 @@ export class HelpersService {
 
     return bcrypt.compareSync(pwd, hash);
   }
+
+  generateAppoitmentCode(drNm: string): string {
+    let rndm = Date.now().toString(36).toUpperCase();
+    let rndmNm = drNm
+      .replaceAll('.', '')
+      .split(' ')
+      .map((text, idx) => (idx > 0 ? text.charAt(0) : text))
+      .join()
+      .replaceAll(',', '')
+      .toUpperCase();
+    return `${rndmNm}-${rndm}`;
+  }
 }

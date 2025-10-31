@@ -80,22 +80,38 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     try {
-      await this.prisma.users.create({
-        data: {
-          ...registerDto,
-          password: this.helpers.bcryptEncrypted(registerDto.password),
-          status: 1,
-          role: 'admin',
-        },
+      const doctor = await this.prisma.doctor.findUnique({
+        where: { email: registerDto.email },
       });
 
-      return new SuccessResponseService().getResponse();
+      if (doctor?.email === registerDto.email) {
+        return new ExceptionHandlerService().getResponse({
+          message: 'Unique constraint failed on the fields email',
+        });
+      } else {
+        await this.prisma.users.create({
+          data: {
+            ...registerDto,
+            password: this.helpers.bcryptEncrypted(registerDto.password),
+            status: 1,
+            role: 'customer',
+          },
+        });
+
+        return new SuccessResponseService().getResponse();
+      }
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }
   }
 
-  logout(id: number) {
-    return `This action removes a #${id} auth`;
+  async logout(authorization: string) {
+    try {
+      const token = authorization.replace('Bearer ', '');
+      await this.prisma.auth.delete({ where: { token } });
+      return new SuccessResponseService().getResponse();
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
   }
 }

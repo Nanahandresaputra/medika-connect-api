@@ -6,9 +6,13 @@ import {
   Delete,
   HttpStatus,
   HttpCode,
+  Header,
+  Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/create-auth.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -25,8 +29,9 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
-  @Delete(':id')
-  logout(@Param('id') id: string) {
-    return this.authService.logout(+id);
+  @UseGuards(AuthGuard)
+  @Delete('logout')
+  logout(@Headers('Authorization') authorization: string) {
+    return this.authService.logout(authorization);
   }
 }

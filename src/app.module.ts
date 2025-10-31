@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { config } from './config/config';
 import { ScheduleModule } from './schedule/schedule.module';
 import { PatientModule } from './patient/patient.module';
+import { AppoitmentModule } from './appoitment/appoitment.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PatientModule } from './patient/patient.module';
     HelpersModule,
     ScheduleModule,
     PatientModule,
+    AppoitmentModule,
   ],
   controllers: [],
   providers: [
