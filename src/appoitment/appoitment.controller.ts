@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AppoitmentService } from './appoitment.service';
 import { CreateAppoitmentDto } from './dto/create-appoitment.dto';
 import { UpdateAppoitmentDto } from './dto/update-appoitment.dto';
@@ -8,6 +18,7 @@ export class AppoitmentController {
   constructor(private readonly appoitmentService: AppoitmentService) {}
 
   @Post()
+  @HttpCode(HttpStatus.OK)
   create(@Body() createAppoitmentDto: CreateAppoitmentDto) {
     return this.appoitmentService.create(createAppoitmentDto);
   }
@@ -23,7 +34,11 @@ export class AppoitmentController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAppoitmentDto: UpdateAppoitmentDto) {
+  @HttpCode(HttpStatus.OK)
+  update(
+    @Param('id') id: string,
+    @Body() updateAppoitmentDto: UpdateAppoitmentDto,
+  ) {
     return this.appoitmentService.update(+id, updateAppoitmentDto);
   }
 

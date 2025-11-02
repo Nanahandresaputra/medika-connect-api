@@ -91,10 +91,10 @@ model Patient {
   id             Int      @unique @default(autoincrement())
   name           String
   user_id        Int
-  id_card_number Int
-  birth_date     DateTime
+  id_card_number String
+  birth_date     String
   birth_location String
-  phone_number   Int
+  phone_number   String
   address        String
 
   user Users @relation(fields: [user_id], references: [id])
@@ -108,7 +108,7 @@ model Appoitment {
   id              Int      @unique @default(autoincrement())
   patient_id      Int
   doctor_id       Int
-  date_time       DateTime
+  date_time       String
   appoitment_code String
   created_at      DateTime @default(now())
 

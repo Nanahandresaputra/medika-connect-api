@@ -10,8 +10,8 @@ export class CreatePatientDto {
   user_id: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  id_card_number: number;
+  @IsString()
+  id_card_number: string;
 
   @IsNotEmpty()
   @IsString()
@@ -22,8 +22,8 @@ export class CreatePatientDto {
   birth_location: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  phone_number: number;
+  @IsString()
+  phone_number: string;
 
   @IsNotEmpty()
   @IsString()

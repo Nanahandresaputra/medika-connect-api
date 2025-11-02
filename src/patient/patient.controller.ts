@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
@@ -19,18 +21,20 @@ export class PatientController {
 
   @UseGuards(AuthGuard)
   @Post()
+  @HttpCode(HttpStatus.OK)
   create(@Body() createPatientDto: CreatePatientDto) {
     return this.patientService.create(createPatientDto);
   }
 
   @UseGuards(AuthGuard)
-  @Get()
-  findAll(@Param(':user_id') user_id: string) {
+  @Get('/user/:user_id')
+  findAll(@Param('user_id') user_id: string) {
     return this.patientService.findAllByUser(+user_id);
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
     return this.patientService.update(+id, updatePatientDto);
   }
