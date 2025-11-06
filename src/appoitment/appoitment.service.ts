@@ -5,6 +5,7 @@ import { HelpersService } from 'src/helpers/helpers.service';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { SuccessResponseService } from 'src/helpers/success-response.service';
+import { AppoitmentResponse } from './interfaces/appoitment.interface';
 
 @Injectable()
 export class AppoitmentService {
@@ -21,7 +22,7 @@ export class AppoitmentService {
         data: {
           ...createAppoitmentDto,
           appoitment_code: this.helpers.generateAppoitmentCode(
-            doctor_name?.name,
+            doctor_name?.name ?? '',
           ),
         },
       });
@@ -39,9 +40,24 @@ export class AppoitmentService {
           ...(doctor_id && { doctor_id }),
           ...(patient_id && { patient_id }),
         },
+        select: {
+          id: true,
+          doctor: { select: { name: true } },
+          patient: { select: { name: true } },
+          date_time: true,
+          appoitment_code: true,
+        },
       });
 
-      return new SuccessResponseService().getResponse(appoitmentData);
+      const respData: AppoitmentResponse[] = appoitmentData.map((data) => ({
+        id: data.id,
+        doctor: data.doctor.name,
+        patient: data.patient.name,
+        date_time: data.date_time,
+        appoitment_code: data.appoitment_code,
+      }));
+
+      return new SuccessResponseService().getResponse(respData);
     } catch (error) {
       new ExceptionHandlerService().getResponse(error);
     }
