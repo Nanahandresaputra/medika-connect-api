@@ -88,7 +88,7 @@ model Schedule {
 }
 
 model Patient {
-  id             Int      @unique @default(autoincrement())
+  id             Int    @unique @default(autoincrement())
   name           String
   user_id        Int
   id_card_number String
@@ -121,6 +121,7 @@ model Appoitment {
 model MediaInformation {
   id         Int      @unique @default(autoincrement())
   img_url    String
+  ext_img_id String
   created_at DateTime @default(now())
 
   @@map("media_information")

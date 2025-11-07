@@ -11,6 +11,7 @@ import { config } from './config/config';
 import { ScheduleModule } from './schedule/schedule.module';
 import { PatientModule } from './patient/patient.module';
 import { AppoitmentModule } from './appoitment/appoitment.module';
+import { MediaInformationModule } from './media-information/media-information.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AppoitmentModule } from './appoitment/appoitment.module';
     ScheduleModule,
     PatientModule,
     AppoitmentModule,
+    MediaInformationModule,
   ],
   controllers: [],
   providers: [

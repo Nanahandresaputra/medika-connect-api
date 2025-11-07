@@ -7,7 +7,7 @@ import {} from './helpers.interface';
 
 @Injectable()
 export class ExceptionHandlerService {
-  getResponse(error: any) {
+  getResponse(error?: any) {
     console.log('error data --->', error, {
       message: error?.message,
       errInst: error?.name,

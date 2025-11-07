@@ -38,6 +38,10 @@ export class AuthService {
           },
           {
             secret: config.key,
+            header: {
+              alg: 'HS256',
+              kid: config.publicKey,
+            },
           },
         );
         const saveAuthData: AuthTableDataInterface = {
