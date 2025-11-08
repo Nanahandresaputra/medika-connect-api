@@ -14,8 +14,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MediaInformationService } from './media-information.service';
-import { CreateMediaInformationDto } from './dto/create-media-information.dto';
-import { UpdateMediaInformationDto } from './dto/update-media-information.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/auth/auth.guard';
 
@@ -45,9 +43,10 @@ export class MediaInformationController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateMediaInformationDto: UpdateMediaInformationDto,
+    @Headers('Authorization') authorization: string,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.mediaInformationService.update(+id, updateMediaInformationDto);
+    return this.mediaInformationService.update(+id, authorization, file);
   }
 
   @Delete(':id')
