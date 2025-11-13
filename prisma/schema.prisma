@@ -35,6 +35,8 @@ model Users {
 
 model Doctor {
   id                Int    @id @unique @default(autoincrement())
+  img_profile       String
+  ext_img_id        String
   username          String
   password          String
   name              String

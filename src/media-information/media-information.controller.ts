@@ -52,6 +52,7 @@ export class MediaInformationController {
     return this.mediaInformationService.update(+id, authorization, file);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.mediaInformationService.remove(+id);

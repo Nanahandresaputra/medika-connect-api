@@ -13,7 +13,11 @@ export class DoctorService {
     private prisma: PrismaService,
     private helpers: HelpersService,
   ) {}
-  async create(createDoctorDto: CreateDoctorDto) {
+  async create(
+    createDoctorDto: CreateDoctorDto,
+    authorization: string,
+    file: any,
+  ) {
     try {
       const user = await this.prisma.users.findUnique({
         where: { email: createDoctorDto.email },
@@ -24,15 +28,48 @@ export class DoctorService {
           message: 'Unique constraint failed on the fields email',
         });
       } else {
-        await this.prisma.doctor.create({
-          data: {
-            ...createDoctorDto,
-            status: 1,
-            password: this.helpers.bcryptEncrypted(createDoctorDto.password),
-          },
-        });
+        const generateImgName = `${this.helpers.generateRndm(createDoctorDto.name)}-${Date.now().toString(36).toUpperCase()}-${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDay()}${new Date().getTime()}`;
 
-        return new SuccessResponseService().getResponse();
+        const formData = new FormData();
+        formData.append(
+          'file',
+          new Blob([file.buffer], { type: file.mimetype }),
+        );
+        formData.append('fileName', generateImgName);
+        formData.append('token', authorization.replace('Bearer ', ''));
+        formData.append('folder', '/medika_connect/doctor');
+        formData.append(
+          'transformation',
+          JSON.stringify({ pre: 'width:auto,height:auto,quality:50' }),
+        );
+        formData.append('useUniqueFileName', 'false');
+
+        const uploadImageKit = await fetch(
+          'https://upload.imagekit.io/api/v2/files/upload',
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Basic ${process.env.IMGKIT_KEY}`,
+            },
+            body: formData,
+          },
+        );
+
+        if (uploadImageKit.ok) {
+          const result = await uploadImageKit.json();
+          await this.prisma.doctor.create({
+            data: {
+              ...createDoctorDto,
+              img_profile: result.url,
+              ext_img_id: result.fileId,
+              status: 1,
+              password: this.helpers.bcryptEncrypted(createDoctorDto.password),
+            },
+          });
+          return new SuccessResponseService().getResponse();
+        } else {
+          return new ExceptionHandlerService().getResponse();
+        }
       }
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
@@ -41,47 +78,140 @@ export class DoctorService {
 
   async findAll() {
     try {
-      const doctorList = await this.prisma.doctor.findMany();
+      const doctorList = await this.prisma.doctor.findMany({
+        select: {
+          id: true,
+          img_profile: true,
+          ext_img_id: true,
+          name: true,
+          code_doctor: true,
+          phone_number: true,
+          address: true,
+          email: true,
+          specialization: {
+            select: { id: true, name: true },
+          },
+          status: true,
+        },
+      });
 
-      const doctorResp: ResponseListDoctorObj[] = doctorList.map((data) => ({
-        id: data.id,
-        name: data.name,
-        username: data.username,
-        code_doctor: data.code_doctor,
-        phone_number: data.phone_number,
-        address: data.address,
-        email: data.email,
-        specialization_id: data.specialization_id,
-        status: data.status,
-      }));
+      // const doctorResp: ResponseListDoctorObj[] = doctorList.map((data) => ({
+      //   id: data.id,
 
-      return new SuccessResponseService().getResponse(doctorResp);
+      //   name: data.name,
+      //   username: data.username,
+      //   code_doctor: data.code_doctor,
+      //   phone_number: data.phone_number,
+      //   address: data.address,
+      //   email: data.email,
+      //   specialization_id: data.specialization_id,
+      //   status: data.status,
+      // }));
+
+      return new SuccessResponseService().getResponse(doctorList);
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }
   }
 
-  async update(id: number, updateDoctorDto: UpdateDoctorDto) {
+  async update(
+    id: number,
+    updateDoctorDto: UpdateDoctorDto,
+    authorization: string,
+    file: any,
+  ) {
     try {
-      const user = await this.prisma.users.findUnique({
-        where: { email: updateDoctorDto.email },
-      });
+      const user = updateDoctorDto?.email
+        ? await this.prisma.users.findUnique({
+            where: { email: updateDoctorDto.email },
+          })
+        : null;
 
       if (user && user.email === updateDoctorDto.email) {
         return new ExceptionHandlerService().getResponse({
           message: 'Unique constraint failed on the fields email',
         });
       } else {
-        await this.prisma.doctor.update({
-          data: {
-            ...updateDoctorDto,
-            ...(updateDoctorDto.password && {
-              password: this.helpers.bcryptEncrypted(updateDoctorDto.password),
-            }),
-          },
+        const doctorData = await this.prisma.doctor.findUnique({
           where: { id },
         });
-        return new SuccessResponseService().getResponse();
+
+        if (file) {
+          const generatename = `${this.helpers.generateRndm(updateDoctorDto.name ?? doctorData?.name)}-${Date.now().toString(36).toUpperCase()}-${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDay()}${new Date().getTime()}`;
+
+          const formData = new FormData();
+          formData.append(
+            'file',
+            new Blob([file.buffer], { type: file.mimetype }),
+          );
+          formData.append('fileName', generatename);
+          formData.append('token', authorization.replace('Bearer ', ''));
+          formData.append('folder', '/medika_connect/doctor');
+          formData.append(
+            'transformation',
+            JSON.stringify({ pre: 'width:auto,height:auto,quality:50' }),
+          );
+          formData.append('useUniqueFileName', 'false');
+
+          const uploadImageKit = await fetch(
+            'https://upload.imagekit.io/api/v2/files/upload',
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Basic ${process.env.IMGKIT_KEY}`,
+              },
+              body: formData,
+            },
+          );
+
+          if (uploadImageKit.ok) {
+            const deleteImageKit = await fetch(
+              `https://api.imagekit.io/v1/files/${doctorData?.ext_img_id}`,
+              {
+                method: 'DELETE',
+                headers: {
+                  Authorization: `Basic ${process.env.IMGKIT_KEY}`,
+                },
+              },
+            );
+
+            if (deleteImageKit.status === 204) {
+              const result = await uploadImageKit.json();
+
+              await this.prisma.doctor.update({
+                data: {
+                  ...updateDoctorDto,
+                  img_profile: result.url,
+                  ext_img_id: result.fileId,
+                  ...(updateDoctorDto.password && {
+                    password: this.helpers.bcryptEncrypted(
+                      updateDoctorDto.password,
+                    ),
+                  }),
+                },
+                where: { id },
+              });
+              return new SuccessResponseService().getResponse();
+            } else {
+              return new ExceptionHandlerService().getResponse();
+            }
+          } else {
+            return new ExceptionHandlerService().getResponse();
+          }
+        } else {
+          await this.prisma.doctor.update({
+            data: {
+              ...updateDoctorDto,
+              ...(updateDoctorDto.password && {
+                password: this.helpers.bcryptEncrypted(
+                  updateDoctorDto.password,
+                ),
+              }),
+            },
+            where: { id },
+          });
+          return new SuccessResponseService().getResponse();
+        }
       }
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);

@@ -9,11 +9,15 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  Headers,
+  UploadedFile,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('doctor')
 export class DoctorController {
@@ -22,8 +26,13 @@ export class DoctorController {
   @UseGuards(AuthGuard)
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createDoctorDto: CreateDoctorDto) {
-    return this.doctorService.create(createDoctorDto);
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createDoctorDto: CreateDoctorDto,
+    @Headers('Authorization') authorization: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.doctorService.create(createDoctorDto, authorization, file);
   }
 
   @Get()
@@ -35,7 +44,13 @@ export class DoctorController {
   @UseGuards(AuthGuard)
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateDoctorDto: UpdateDoctorDto) {
-    return this.doctorService.update(+id, updateDoctorDto);
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateDoctorDto: UpdateDoctorDto,
+    @Headers('Authorization') authorization: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.doctorService.update(+id, updateDoctorDto, authorization, file);
   }
 }

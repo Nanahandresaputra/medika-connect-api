@@ -18,15 +18,28 @@ export class HelpersService {
     return bcrypt.compareSync(pwd, hash);
   }
 
+  generateRndm(drName?: string): string {
+    let rndmNm: string = drName
+      ? drName
+          .replaceAll('.', '')
+          .split(' ')
+          .map((text, idx) => (idx > 0 ? text.charAt(0) : text))
+          .join()
+          .replaceAll(',', '')
+          .toUpperCase()
+      : 'Unknwon'
+          .replaceAll('.', '')
+          .split(' ')
+          .map((text, idx) => (idx > 0 ? text.charAt(0) : text))
+          .join()
+          .replaceAll(',', '')
+          .toUpperCase();
+
+    return rndmNm;
+  }
+
   generateAppoitmentCode(drName: string): string {
     let rndm = Date.now().toString(36).toUpperCase();
-    let rndmNm = drName
-      .replaceAll('.', '')
-      .split(' ')
-      .map((text, idx) => (idx > 0 ? text.charAt(0) : text))
-      .join()
-      .replaceAll(',', '')
-      .toUpperCase();
-    return `${rndmNm}-${rndm}`;
+    return `${this.generateRndm(drName)}-${rndm}`;
   }
 }

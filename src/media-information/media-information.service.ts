@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMediaInformationDto } from './dto/create-media-information.dto';
-import { UpdateMediaInformationDto } from './dto/update-media-information.dto';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { SuccessResponseService } from 'src/helpers/success-response.service';
