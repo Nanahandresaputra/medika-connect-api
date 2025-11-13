@@ -42,7 +42,9 @@ export class AppoitmentService {
         },
         select: {
           id: true,
-          doctor: { select: { name: true } },
+          doctor: {
+            select: { name: true, specialization: { select: { name: true } } },
+          },
           patient: { select: { name: true } },
           date_time: true,
           appoitment_code: true,
@@ -53,6 +55,7 @@ export class AppoitmentService {
         id: data.id,
         doctor: data.doctor.name,
         patient: data.patient.name,
+        category: data.doctor.specialization.name,
         date_time: data.date_time,
         appoitment_code: data.appoitment_code,
       }));

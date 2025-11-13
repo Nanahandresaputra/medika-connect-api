@@ -12,6 +12,7 @@ import { ScheduleModule } from './schedule/schedule.module';
 import { PatientModule } from './patient/patient.module';
 import { AppoitmentModule } from './appoitment/appoitment.module';
 import { MediaInformationModule } from './media-information/media-information.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MediaInformationModule } from './media-information/media-information.mo
     PatientModule,
     AppoitmentModule,
     MediaInformationModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [
