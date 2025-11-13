@@ -35,4 +35,14 @@ export class AppoitmentController {
   ) {
     return this.appoitmentService.findAll(+doctor_id, +patient_id);
   }
+
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+  update(
+    @Param('id') id: string,
+    @Body() updateAppoitmentDto: UpdateAppoitmentDto,
+  ) {
+    return this.appoitmentService.update(+id, updateAppoitmentDto);
+  }
 }

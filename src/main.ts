@@ -11,7 +11,7 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(),
     {
-      logger: ['error', 'log', 'warn'],
+      logger: ['error', 'log', 'warn', 'debug'],
     },
   );
 

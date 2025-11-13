@@ -30,19 +30,22 @@ export class DashboardService {
         where: { date_time: { contains: getDateToday } },
       });
 
-      const totalTodayAppoitment = rawTotalTodayAppoitment.map((data) => ({
-        id: data.id,
-        patient: data.patient.name,
-        doctor: data.doctor.name,
-        date_time: data.date_time,
-      }));
+      const todayAppoitment = {
+        date: getDateToday,
+        listPatients: rawTotalTodayAppoitment.map((data) => ({
+          id: data.id,
+          patient: data.patient.name,
+          doctor: data.doctor.name,
+          date_time: data.date_time,
+        })),
+      };
 
       return new SuccessResponseService().getResponse({
         totalDoctorActive,
         totalPatientActive,
         totalAppoitment,
         doctorTodayAvailable,
-        totalTodayAppoitment,
+        todayAppoitment,
       });
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);

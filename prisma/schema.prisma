@@ -19,6 +19,12 @@ enum user_role {
   admin
 }
 
+enum appoitment_status {
+  reserved
+  completed
+  canceled
+} 
+
 model Users {
   id       Int       @id @unique @default(autoincrement())
   name     String
@@ -112,6 +118,7 @@ model Appoitment {
   doctor_id       Int
   date_time       String
   appoitment_code String
+  status          appoitment_status
   created_at      DateTime @default(now())
 
   patient Patient @relation(fields: [patient_id], references: [id])

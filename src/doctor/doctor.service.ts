@@ -68,6 +68,8 @@ export class DoctorService {
           });
           return new SuccessResponseService().getResponse();
         } else {
+          const result = await uploadImageKit.json();
+          console.log('upload img -->', result);
           return new ExceptionHandlerService().getResponse();
         }
       }

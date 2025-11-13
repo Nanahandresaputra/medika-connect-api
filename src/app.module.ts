@@ -7,12 +7,12 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaConnectModule } from './prisma-connect/prisma-connect.module';
 import { HelpersModule } from './helpers/helpers.module';
 import { JwtModule } from '@nestjs/jwt';
-import { config } from './config/config';
 import { ScheduleModule } from './schedule/schedule.module';
 import { PatientModule } from './patient/patient.module';
 import { AppoitmentModule } from './appoitment/appoitment.module';
 import { MediaInformationModule } from './media-information/media-information.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ScheduleModule as SchedulerModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -36,6 +36,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     AppoitmentModule,
     MediaInformationModule,
     DashboardModule,
+    SchedulerModule.forRoot(),
   ],
   controllers: [],
   providers: [
