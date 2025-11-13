@@ -65,50 +65,48 @@ export class MediaInformationService {
         where: { id },
       });
 
-      const deleteImageKit = await fetch(
-        `https://api.imagekit.io/v1/files/${mediaData?.ext_img_id}`,
+      const generatename = `MEDIA-${Date.now().toString(36).toUpperCase()}-${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDay()}${new Date().getTime()}`;
+
+      const formData = new FormData();
+      formData.append('file', new Blob([file.buffer], { type: file.mimetype }));
+      formData.append('fileName', generatename);
+      formData.append('token', authorization.replace('Bearer ', ''));
+      formData.append('folder', '/medika_connect/media_information');
+      formData.append(
+        'transformation',
+        JSON.stringify({ pre: 'width:auto,height:auto,quality:50' }),
+      );
+      formData.append('useUniqueFileName', 'false');
+
+      const uploadImageKit = await fetch(
+        'https://upload.imagekit.io/api/v2/files/upload',
         {
-          method: 'DELETE',
+          method: 'POST',
           headers: {
             Authorization: `Basic ${process.env.IMGKIT_KEY}`,
           },
+          body: formData,
         },
       );
-      console.log('test upload ---->', deleteImageKit);
-      if (deleteImageKit.status === 204) {
-        const generatename = `MEDIA-${Date.now().toString(36).toUpperCase()}-${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDay()}${new Date().getTime()}`;
 
-        const formData = new FormData();
-        formData.append(
-          'file',
-          new Blob([file.buffer], { type: file.mimetype }),
-        );
-        formData.append('fileName', generatename);
-        formData.append('token', authorization.replace('Bearer ', ''));
-        formData.append('folder', '/medika_connect/media_information');
-        formData.append(
-          'transformation',
-          JSON.stringify({ pre: 'width:auto,height:auto,quality:50' }),
-        );
-        formData.append('useUniqueFileName', 'false');
-        const uploadImageKit = await fetch(
-          'https://upload.imagekit.io/api/v2/files/upload',
+      if (uploadImageKit.ok) {
+        const deleteImageKit = await fetch(
+          `https://api.imagekit.io/v1/files/${mediaData?.ext_img_id}`,
           {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
               Authorization: `Basic ${process.env.IMGKIT_KEY}`,
             },
-            body: formData,
           },
         );
-        console.log('test upload ---->', uploadImageKit);
-
-        if (uploadImageKit.ok) {
+        if (deleteImageKit.status === 204) {
           const result = await uploadImageKit.json();
           await this.prisma.mediaInformation.update({
             where: { id },
             data: { ext_img_id: result.fileId, img_url: result.url },
           });
+
+          return new SuccessResponseService().getResponse();
         } else {
           return new ExceptionHandlerService().getResponse();
         }

@@ -40,7 +40,10 @@ export class MediaInformationController {
     return this.mediaInformationService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FileInterceptor('file'))
   update(
     @Param('id') id: string,
     @Headers('Authorization') authorization: string,
