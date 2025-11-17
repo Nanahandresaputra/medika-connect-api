@@ -104,6 +104,9 @@ export class ScheduleService {
           status: 1,
         },
         select: { time: true, date: true, doctor_id: true },
+        orderBy: {
+          date: 'asc',
+        },
       });
 
       const sendResp: ResponseListScheduleByDoctor[] = doctorData
@@ -119,7 +122,8 @@ export class ScheduleService {
               date: scheduleData.find((data) => data.date === dateData)?.date,
               time: scheduleData
                 .filter((timeData) => timeData.date === dateData)
-                .map((timeData) => timeData.time),
+                .map((timeData) => timeData.time)
+                .sort(),
             }),
           ),
         }))
@@ -180,28 +184,27 @@ export class ScheduleService {
 
   async update(doctor_id: number, updateScheduleDto: UpdateScheduleDto) {
     try {
-      const datagTime = await this.prisma.schedule.findMany({
-        where: { doctor_id, date: updateScheduleDto.date },
-      });
       const newTime = updateScheduleDto.time.map((data) => ({
         doctor_id,
         date: updateScheduleDto.date,
         time: data,
       }));
 
-      const notExitingNewTime = newTime
-        .filter(
-          (data) =>
-            datagTime.find((dt) => dt.time === data.time)?.time !== data.time,
-        )
-        .map((data) => ({
-          doctor_id,
-          date: updateScheduleDto.date,
-          time: data.time,
-          status: 1,
-        }));
-
       if (updateScheduleDto.date === updateScheduleDto.oldDate) {
+        const datagTime = await this.prisma.schedule.findMany({
+          where: { doctor_id, date: updateScheduleDto.date },
+        });
+        const notExitingNewTime = newTime
+          .filter(
+            (data) =>
+              datagTime.find((dt) => dt.time === data.time)?.time !== data.time,
+          )
+          .map((data) => ({
+            doctor_id,
+            date: updateScheduleDto.date,
+            time: data.time,
+            status: 1,
+          }));
         const exitingNewTime = newTime
           .filter(
             (data) =>
@@ -215,21 +218,19 @@ export class ScheduleService {
           }));
 
         if (notExitingNewTime.length > 0) {
-          console.log('trigger not exiting <<<<');
           await this.prisma.schedule.createMany({
             data: notExitingNewTime,
           });
         }
 
         if (exitingNewTime.length > 0) {
-          console.log('trigger exiting <<<<');
           const updateTime = datagTime.map((data) => {
             return this.prisma.schedule.update({
               where: { id: data.id },
               data: {
                 status:
                   newTime.find((dt) => dt.time === data.time)?.time !==
-                    undefined || data.status === 0
+                  undefined
                     ? 1
                     : 0,
               },
@@ -239,6 +240,9 @@ export class ScheduleService {
           await this.prisma.$transaction(updateTime);
         }
       } else {
+        const datagTime = await this.prisma.schedule.findMany({
+          where: { doctor_id, date: updateScheduleDto.oldDate },
+        });
         const isTimeSame = newTime
           .map((data) => datagTime.map((dt) => dt.time).includes(data.time))
           .filter((data) => data === true);
@@ -250,10 +254,31 @@ export class ScheduleService {
           status: 1,
         }));
         if (datagTime.length === isTimeSame.length) {
-          await this.prisma.schedule.createMany({ data: sendDataCreate });
-        } else {
-          await this.prisma.schedule.createMany({ data: sendDataCreate });
+          await this.prisma.schedule
+            .createMany({ data: sendDataCreate })
+            .then(() => {
+              return this.prisma.schedule.updateMany({
+                where: { date: updateScheduleDto.oldDate },
+                data: { status: 0 },
+              });
+            });
         }
+        // else {
+        //   console.log('trigger else two -->');
+        //   const notExitingDataTime = newTime.filter(
+        //     (data) =>
+        //       datagTime.find((dt) => dt.time === data.time)?.time !== data.time,
+        //   );
+
+        //   console.log('else time -->>', {
+        //     sendDataCreate: sendDataCreate.filter(
+        //       (data) =>
+        //         datagTime.find((dt) => dt.time === data.time)?.time !==
+        //         data.time,
+        //     ),
+        //   });
+        //   // await this.prisma.schedule.createMany({ data: sendDataCreate });
+        // }
       }
 
       return new SuccessResponseService().getResponse();
