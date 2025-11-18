@@ -42,4 +42,9 @@ export class HelpersService {
     let rndm = Date.now().toString(36).toUpperCase();
     return `${this.generateRndm(drName)}-${rndm}`;
   }
+
+  bigIntToString(value: any) {
+    const MAX_SAFE_INTEGER = 2 ** 53 - 1;
+    return value <= MAX_SAFE_INTEGER ? Number(value) : value?.toString();
+  }
 }
