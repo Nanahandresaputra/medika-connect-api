@@ -53,10 +53,12 @@ export class DashboardService {
           .$queryRaw`select to_char(date, 'YYYY-MM-DD') as date, departement, total from (select cast(a.date_time as date) as date, s.name as departement,  COUNT(*) as total  from appoitment a join doctor d on a.doctor_id = d.id
         join specialization s on d.specialization_id = s.id group by s.name, date) as sub where date >= now() - interval '1 week' order by date desc`;
 
-        const appoitmentList = appoitmentStatisticQuery.map((data: any) => ({
-          ...data,
-          total: this.helpers.bigIntToString(data.total),
-        }));
+        const appoitmentList: any[] = appoitmentStatisticQuery.map(
+          (data: any) => ({
+            ...data,
+            total: this.helpers.bigIntToString(data.total),
+          }),
+        );
 
         const dayName: string[] = [
           'Sunday',
