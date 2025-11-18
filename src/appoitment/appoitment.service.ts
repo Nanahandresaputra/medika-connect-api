@@ -84,16 +84,42 @@ export class AppoitmentService {
     }
   }
 
-  // @Cron('0 30 00 * * 1-7')
-  // @Cron('5 * * * * *')
+  // // @Cron('0 30 00 * * 1-7')
+  // @Cron('1 * * * * *')
   // async appoitmentScheduler() {
   //   try {
-  //     const getTodayDate = moment().format('DD-MM-YYYY');
+  //     const getTodayDate = moment().format('YYYY-MM-DD');
+  //     const appoitmentData = await this.prisma.appoitment.findMany({
+  //       where: {
+  //         status: 'reserved',
+  //       },
+  //     });
 
-  //     const
+  //     const reservedList = appoitmentData.filter
+
+  //     // const manyUpdate = reservedAppoitmentList.map((data) => {
+  //     //   const dataIsCurrentDate = moment(data.date_time, 'DD/MM/YYYY').format(
+  //     //         'YYYY-MM-DD')
+
+  //     //         if(dataIsCurrentDate )
+
+  //     //   return this.prisma.appoitment.updateMany({data: {status: 'canceled'}, where: {date_time: {contains: getTodayDate }}})
+  //     // })
 
   //     // console.log('get data ------>', getTodayDate)
-  //     this.logger.debug(`et data -> ${getTodayDate}`);
+  //     this.logger.debug(
+  //       // `et data -> ${getTodayDate}`,
+  //       'initestt --->',
+  //       // moment().endOf('day').toDate(),
+  //       // {
+  //       //   appoitment: reservedAppoitmentList.map((data) => ({
+  //       //     ...data,
+  //           // date_time: moment(data.date_time, 'DD/MM/YYYY').format(
+  //           //   'YYYY-MM-DD',
+  //           // ),
+  //       //   })),
+  //       // },
+  //     );
   //   } catch (error) {
   //     //  console.log('get data ------>', getTodayDate)
   //     this.logger.debug(`err scheduler -> ${error}`);
