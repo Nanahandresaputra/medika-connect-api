@@ -60,9 +60,14 @@ export class AuthService {
             name: doctor.name,
             id: doctor.id,
             email: doctor.email,
+            role: doctor.role,
           },
           {
             secret: config.key,
+            header: {
+              alg: 'HS256',
+              kid: config.publicKey,
+            },
           },
         );
         const saveAuthData: AuthTableDataInterface = {

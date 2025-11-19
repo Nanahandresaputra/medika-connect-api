@@ -7,7 +7,6 @@ import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { SuccessResponseService } from 'src/helpers/success-response.service';
 import { AppoitmentResponse } from './interfaces/appoitment.interface';
 import { Cron } from '@nestjs/schedule';
-const moment = require('moment');
 
 @Injectable()
 export class AppoitmentService {
@@ -91,7 +90,7 @@ export class AppoitmentService {
       const appoitmentData: [] = await this.prisma
         .$queryRaw`select * from (select a.id , a.doctor_id , a.patient_id , a.appoitment_code ,
         cast(a.date_time as date) as date , a.created_at, a.status  from appoitment a where a.status = 'reserved') as sub
-        where date <= now() order by date asc`;
+        where date < now() order by date asc`;
 
       const updateStatusToCancel = appoitmentData.map((data: any) => {
         return this.prisma.appoitment.updateMany({

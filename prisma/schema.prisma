@@ -23,7 +23,7 @@ enum appoitment_status {
   reserved
   completed
   canceled
-} 
+}
 
 model Users {
   id       Int       @id @unique @default(autoincrement())
@@ -40,7 +40,7 @@ model Users {
 }
 
 model Doctor {
-  id                Int    @id @unique @default(autoincrement())
+  id                Int     @id @unique @default(autoincrement())
   img_profile       String
   ext_img_id        String
   username          String
@@ -49,9 +49,10 @@ model Doctor {
   code_doctor       String
   phone_number      String
   address           String
-  email             String @unique
+  email             String  @unique
   specialization_id Int
   status            Int
+  role              String? @default("doctor")
 
   auth           Auth[]
   schedule       Schedule[]
@@ -113,13 +114,13 @@ model Patient {
 }
 
 model Appoitment {
-  id              Int      @unique @default(autoincrement())
+  id              Int               @unique @default(autoincrement())
   patient_id      Int
   doctor_id       Int
   date_time       String
   appoitment_code String
   status          appoitment_status
-  created_at      DateTime @default(now())
+  created_at      DateTime          @default(now())
 
   patient Patient @relation(fields: [patient_id], references: [id])
   doctor  Doctor  @relation(fields: [doctor_id], references: [id])

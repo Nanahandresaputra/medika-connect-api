@@ -13,6 +13,7 @@ import { AppoitmentModule } from './appoitment/appoitment.module';
 import { MediaInformationModule } from './media-information/media-information.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ScheduleModule as SchedulerModule } from '@nestjs/schedule';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ScheduleModule as SchedulerModule } from '@nestjs/schedule';
     MediaInformationModule,
     DashboardModule,
     SchedulerModule.forRoot(),
+    CaslModule,
   ],
   controllers: [],
   providers: [
