@@ -84,50 +84,30 @@ export class AppoitmentService {
     }
   }
 
-  // // @Cron('0 30 00 * * 1-7')
-  // @Cron('1 * * * * *')
-  // async appoitmentScheduler() {
-  //   try {
-  //     const getTodayDate = moment().format('YYYY-MM-DD');
-  //     const appoitmentData = await this.prisma.appoitment.findMany({
-  //       where: {
-  //         status: 'reserved',
-  //       },
-  //     });
+  @Cron('0 30 00 * * 1-7') // real scheduller date and time => everyday 00:30 triggered
+  //@Cron('1 * * * * *') // for development testing
+  async appoitmentScheduler() {
+    try {
+      const appoitmentData: [] = await this.prisma
+        .$queryRaw`select * from (select a.id , a.doctor_id , a.patient_id , a.appoitment_code ,
+        cast(a.date_time as date) as date , a.created_at, a.status  from appoitment a where a.status = 'reserved') as sub
+        where date <= now() order by date asc`;
 
-  //     const reservedList = appoitmentData.filter
+      const updateStatusToCancel = appoitmentData.map((data: any) => {
+        return this.prisma.appoitment.updateMany({
+          data: { status: 'canceled' },
+          where: { id: data.id },
+        });
+      });
 
-  //     // const manyUpdate = reservedAppoitmentList.map((data) => {
-  //     //   const dataIsCurrentDate = moment(data.date_time, 'DD/MM/YYYY').format(
-  //     //         'YYYY-MM-DD')
-
-  //     //         if(dataIsCurrentDate )
-
-  //     //   return this.prisma.appoitment.updateMany({data: {status: 'canceled'}, where: {date_time: {contains: getTodayDate }}})
-  //     // })
-
-  //     // console.log('get data ------>', getTodayDate)
-  //     this.logger.debug(
-  //       // `et data -> ${getTodayDate}`,
-  //       'initestt --->',
-  //       // moment().endOf('day').toDate(),
-  //       // {
-  //       //   appoitment: reservedAppoitmentList.map((data) => ({
-  //       //     ...data,
-  //           // date_time: moment(data.date_time, 'DD/MM/YYYY').format(
-  //           //   'YYYY-MM-DD',
-  //           // ),
-  //       //   })),
-  //       // },
-  //     );
-  //   } catch (error) {
-  //     //  console.log('get data ------>', getTodayDate)
-  //     this.logger.debug(`err scheduler -> ${error}`);
-  //   }
-  // }
-  // @Cron('* * * * * *')
-  // appoitmentScheduler() {
-  //   console.log('test iiiiii woii');
-  //   this.logger.debug('Called when the current second is 5');
-  // }
+      if (appoitmentData.length > 0) {
+        await this.prisma.$transaction(updateStatusToCancel);
+        this.logger.debug(`${appoitmentData.length} appoitment data expired`);
+      } else {
+        this.logger.debug('not data expired');
+      }
+    } catch (error) {
+      this.logger.debug('expired appoitment failed');
+    }
+  }
 }
