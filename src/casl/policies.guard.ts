@@ -14,6 +14,7 @@ import { CHECK_POLICIES_KEY } from './policies.decorator';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { config } from 'src/config/config';
+import { UserLogin } from './policies.entity';
 
 @Injectable()
 export class PoliciesGuard implements CanActivate {
@@ -42,7 +43,9 @@ export class PoliciesGuard implements CanActivate {
       });
       //   request['user'] = payload;
 
-      const ability = this.caslAbilityFactory.createForUser(payload.role);
+      const user: UserLogin = payload;
+
+      const ability = this.caslAbilityFactory.createForUser(user);
 
       return policyHandlers.every((handler) =>
         this.execPolicyHandler(handler, ability),

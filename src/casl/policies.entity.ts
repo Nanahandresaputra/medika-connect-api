@@ -10,18 +10,20 @@ export class UserLogin {
 }
 
 export class Users {
-  id: number;
+  user_id: number;
 }
 
 export class Doctor {
-  id: number;
+  doctor_id: number;
 }
 
 export class Patient {
-  id: number;
+  user_id: number;
 }
 
-export class Appoitment {}
+export class Appoitment {
+  user_id: number;
+}
 
 export class Specialization {}
 

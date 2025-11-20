@@ -15,12 +15,21 @@ import { AppoitmentService } from './appoitment.service';
 import { CreateAppoitmentDto } from './dto/create-appoitment.dto';
 import { UpdateAppoitmentDto } from './dto/update-appoitment.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { CheckPolicies } from 'src/casl/policies.decorator';
+import {
+  Action,
+  AppAbility,
+} from 'src/casl/casl-ability.factory/casl-ability.factory';
+import { Appoitment } from 'src/casl/policies.entity';
 
 @Controller('appoitment')
 export class AppoitmentController {
   constructor(private readonly appoitmentService: AppoitmentService) {}
 
   @UseGuards(AuthGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Create, Appoitment),
+  )
   @Post()
   @HttpCode(HttpStatus.OK)
   create(@Body() createAppoitmentDto: CreateAppoitmentDto) {

@@ -46,29 +46,31 @@ export type AppAbility = PureAbility<[Action, Subjects], PrismaQuery>;
 
 @Injectable()
 export class CaslAbilityFactory {
-  createForUser(role: string, isAdmin?: boolean) {
+  createForUser(userLogin: UserLogin) {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(
       createPrismaAbility,
     );
 
-    console.log('role data ---->', role);
-
-    if (role === 'admin') {
+    if (userLogin.role === userRoleType.admin) {
       can(Action.Manage, Doctor);
       can(Action.Manage, Specialization);
       can(Action.Manage, Schedule);
       can(Action.Manage, MediaInformation);
       can(Action.Read, Dashboard);
       can(Action.Create, Users);
-    } else if (role === 'customer') {
+    } else if (userLogin.role === userRoleType.customer) {
       can(Action.Read, Appoitment);
+      can(Action.Create, Appoitment);
     } else {
-      can(Action.Read, 'all');
+      cannot(Action.Manage, 'all');
     }
 
     // can(Action.Update, Article, { authorId: user.id });
     // cannot(Action.Delete, Article, { isPublished: true });
 
-    return build();
+    return build({
+      detectSubjectType: (item) =>
+        item.constructor as ExtractSubjectType<Subjects>,
+    });
   }
 }
