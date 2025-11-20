@@ -1,7 +1,7 @@
 export enum userRoleType {
-  admin,
-  customer,
-  doctor,
+  admin = 'admin',
+  customer = 'customer',
+  doctor = 'doctor',
 }
 
 export class UserLogin {

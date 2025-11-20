@@ -58,9 +58,16 @@ export class CaslAbilityFactory {
       can(Action.Manage, MediaInformation);
       can(Action.Read, Dashboard);
       can(Action.Create, Users);
+      can(Action.Read, Appoitment);
     } else if (userLogin.role === userRoleType.customer) {
       can(Action.Read, Appoitment);
       can(Action.Create, Appoitment);
+      can(Action.Manage, Patient);
+      can(Action.Read, Schedule);
+    } else if (userLogin.role === userRoleType.doctor) {
+      can(Action.Read, Appoitment);
+      can(Action.Update, Appoitment);
+      can(Action.Read, Schedule);
     } else {
       cannot(Action.Manage, 'all');
     }

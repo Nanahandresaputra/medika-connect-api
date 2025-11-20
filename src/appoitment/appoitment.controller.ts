@@ -21,12 +21,14 @@ import {
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { Appoitment } from 'src/casl/policies.entity';
+import { PoliciesGuard } from 'src/casl/policies.guard';
 
 @Controller('appoitment')
 export class AppoitmentController {
   constructor(private readonly appoitmentService: AppoitmentService) {}
 
   @UseGuards(AuthGuard)
+  @UseGuards(PoliciesGuard)
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Create, Appoitment),
   )
