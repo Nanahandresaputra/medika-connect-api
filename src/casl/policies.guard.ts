@@ -37,7 +37,9 @@ export class PoliciesGuard implements CanActivate {
 
     if (!tokenData) {
       throw new UnauthorizedException();
-    } else {
+    }
+
+    try {
       const payload = await this.jwtService.verifyAsync(tokenData, {
         secret: config.key,
       });
@@ -50,6 +52,8 @@ export class PoliciesGuard implements CanActivate {
       return policyHandlers.every((handler) =>
         this.execPolicyHandler(handler, ability),
       );
+    } catch (error) {
+      throw new UnauthorizedException();
     }
   }
 

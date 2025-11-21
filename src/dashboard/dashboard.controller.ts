@@ -7,15 +7,17 @@ import {
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { PoliciesGuard } from 'src/casl/policies.guard';
-import { Dashboard } from 'src/casl/policies.entity';
+import { DashboardPolicies } from 'src/casl/policies.entity';
 
+@UseGuards(AuthGuard)
+@UseGuards(PoliciesGuard)
 @Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
-  @UseGuards(AuthGuard)
-  @UseGuards(PoliciesGuard)
-  @CheckPolicies((ability: AppAbility) => ability.can(Action.Read, Dashboard))
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Read, DashboardPolicies),
+  )
   @Get()
   findAll() {
     return this.dashboardService.findAll();

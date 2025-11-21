@@ -14,25 +14,40 @@ import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PoliciesGuard } from 'src/casl/policies.guard';
+import { CheckPolicies } from 'src/casl/policies.decorator';
+import {
+  Action,
+  AppAbility,
+} from 'src/casl/casl-ability.factory/casl-ability.factory';
+import { PatientPolicies } from 'src/casl/policies.entity';
 
+@UseGuards(AuthGuard)
+@UseGuards(PoliciesGuard)
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
-  @UseGuards(AuthGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Manage, PatientPolicies),
+  )
   @Post()
   @HttpCode(HttpStatus.OK)
   create(@Body() createPatientDto: CreatePatientDto) {
     return this.patientService.create(createPatientDto);
   }
 
-  @UseGuards(AuthGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Manage, PatientPolicies),
+  )
   @Get('/user/:user_id')
   findAll(@Param('user_id') user_id: string) {
     return this.patientService.findAllByUser(+user_id);
   }
 
-  @UseGuards(AuthGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Manage, PatientPolicies),
+  )
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {

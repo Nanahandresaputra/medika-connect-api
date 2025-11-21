@@ -20,17 +20,17 @@ import {
   Action,
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { Appoitment } from 'src/casl/policies.entity';
+import { AppoitmentPolicies } from 'src/casl/policies.entity';
 import { PoliciesGuard } from 'src/casl/policies.guard';
 
 @Controller('appoitment')
+@UseGuards(AuthGuard)
+@UseGuards(PoliciesGuard)
 export class AppoitmentController {
   constructor(private readonly appoitmentService: AppoitmentService) {}
 
-  @UseGuards(AuthGuard)
-  @UseGuards(PoliciesGuard)
   @CheckPolicies((ability: AppAbility) =>
-    ability.can(Action.Create, Appoitment),
+    ability.can(Action.Create, AppoitmentPolicies),
   )
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -38,7 +38,9 @@ export class AppoitmentController {
     return this.appoitmentService.create(createAppoitmentDto);
   }
 
-  @UseGuards(AuthGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Read, AppoitmentPolicies),
+  )
   @Get()
   findAll(
     @Query('doctor_id') doctor_id: string,
@@ -47,7 +49,9 @@ export class AppoitmentController {
     return this.appoitmentService.findAll(+doctor_id, +patient_id);
   }
 
-  @UseGuards(AuthGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Update, AppoitmentPolicies),
+  )
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   update(

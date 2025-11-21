@@ -8,16 +8,16 @@ import {
 } from '@casl/ability';
 import { createPrismaAbility, PrismaModel, PrismaQuery } from '@casl/prisma';
 import {
-  Appoitment,
-  Dashboard,
-  Doctor,
-  MediaInformation,
-  Patient,
-  Schedule,
-  Specialization,
+  AppoitmentPolicies,
+  DashboardPolicies,
+  DoctorPolicies,
+  MediaInformationPolicies,
+  PatientPolicies,
+  SchedulePolicies,
+  SpecializationPolicies,
   UserLogin,
   userRoleType,
-  Users,
+  UsersPolicies,
 } from '../policies.entity';
 
 export enum Action {
@@ -31,14 +31,14 @@ export enum Action {
 type Subjects =
   | InferSubjects<
       | typeof UserLogin
-      | typeof Doctor
-      | typeof Users
-      | typeof Dashboard
-      | typeof Patient
-      | typeof Appoitment
-      | typeof Specialization
-      | typeof Schedule
-      | typeof MediaInformation
+      | typeof DoctorPolicies
+      | typeof UsersPolicies
+      | typeof DashboardPolicies
+      | typeof PatientPolicies
+      | typeof AppoitmentPolicies
+      | typeof SpecializationPolicies
+      | typeof SchedulePolicies
+      | typeof MediaInformationPolicies
     >
   | 'all';
 
@@ -52,22 +52,31 @@ export class CaslAbilityFactory {
     );
 
     if (userLogin.role === userRoleType.admin) {
-      can(Action.Manage, Doctor);
-      can(Action.Manage, Specialization);
-      can(Action.Manage, Schedule);
-      can(Action.Manage, MediaInformation);
-      can(Action.Read, Dashboard);
-      can(Action.Create, Users);
-      can(Action.Read, Appoitment);
+      can(Action.Manage, DoctorPolicies);
+      can(Action.Manage, SpecializationPolicies);
+      can(Action.Manage, SchedulePolicies);
+      can(Action.Manage, MediaInformationPolicies);
+      can(Action.Read, DashboardPolicies);
+      can(Action.Create, UsersPolicies);
+      can(Action.Read, UsersPolicies);
+      can(Action.Read, AppoitmentPolicies);
     } else if (userLogin.role === userRoleType.customer) {
-      can(Action.Read, Appoitment);
-      can(Action.Create, Appoitment);
-      can(Action.Manage, Patient);
-      can(Action.Read, Schedule);
+      can(Action.Read, MediaInformationPolicies);
+      can(Action.Read, AppoitmentPolicies);
+      can(Action.Create, AppoitmentPolicies);
+      can(Action.Manage, PatientPolicies);
+      can(Action.Read, SchedulePolicies);
+      can(Action.Read, SpecializationPolicies);
+      can(Action.Read, DoctorPolicies);
+      can(Action.Update, UsersPolicies);
+      can(Action.Read, UsersPolicies);
     } else if (userLogin.role === userRoleType.doctor) {
-      can(Action.Read, Appoitment);
-      can(Action.Update, Appoitment);
-      can(Action.Read, Schedule);
+      can(Action.Read, MediaInformationPolicies);
+      can(Action.Read, AppoitmentPolicies);
+      can(Action.Update, AppoitmentPolicies);
+      can(Action.Update, DoctorPolicies);
+      can(Action.Read, DoctorPolicies);
+      can(Action.Read, SchedulePolicies);
     } else {
       cannot(Action.Manage, 'all');
     }

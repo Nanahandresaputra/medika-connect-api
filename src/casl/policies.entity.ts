@@ -9,26 +9,26 @@ export class UserLogin {
   role: userRoleType;
 }
 
-export class Users {
+export class UsersPolicies {
   user_id: number;
 }
 
-export class Doctor {
+export class DoctorPolicies {
   doctor_id: number;
 }
 
-export class Patient {
+export class PatientPolicies {
   user_id: number;
 }
 
-export class Appoitment {
+export class AppoitmentPolicies {
   user_id: number;
 }
 
-export class Specialization {}
+export class SpecializationPolicies {}
 
-export class Schedule {}
+export class SchedulePolicies {}
 
-export class MediaInformation {}
+export class MediaInformationPolicies {}
 
-export class Dashboard {}
+export class DashboardPolicies {}
