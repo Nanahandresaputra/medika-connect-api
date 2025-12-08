@@ -60,6 +60,7 @@ export class CaslAbilityFactory {
       can(Action.Create, UsersPolicies);
       can(Action.Read, UsersPolicies);
       can(Action.Read, AppoitmentPolicies);
+      can(Action.Read, PatientPolicies);
     } else if (userLogin.role === userRoleType.customer) {
       can(Action.Read, MediaInformationPolicies);
       can(Action.Read, AppoitmentPolicies);

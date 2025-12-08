@@ -38,6 +38,14 @@ export class PatientController {
   }
 
   @CheckPolicies((ability: AppAbility) =>
+    ability.can(Action.Read, PatientPolicies),
+  )
+  @Get('/for-admin')
+  findAllForAdmin() {
+    return this.patientService.findAllForAdmin();
+  }
+
+  @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Manage, PatientPolicies),
   )
   @Get('/user/:user_id')

@@ -17,6 +17,14 @@ export class PatientService {
     }
   }
 
+  async findAllForAdmin() {
+    try {
+      const patientDatas = await this.prisma.patient.findMany({});
+      return new SuccessResponseService().getResponse(patientDatas);
+    } catch (error) {
+      return new ExceptionHandlerService().getResponse(error);
+    }
+  }
   async findAllByUser(user_id: number) {
     try {
       const patientDatas = await this.prisma.patient.findMany({
