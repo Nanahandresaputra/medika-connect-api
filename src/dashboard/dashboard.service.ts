@@ -20,7 +20,7 @@ export class DashboardService {
       const getDateToday = moment().format('YYYY-MM-DD');
 
       const doctorTodayAvailable = await this.prisma
-        .$queryRaw`select d.name, s.date, sp.name as specialization  from doctor d  join schedule s on d.id = s.doctor_id join specialization sp on d.specialization_id = sp.id where s.date = ${getDateToday} group by d.name, s.date, sp.name `;
+        .$queryRaw`select d.name, s.date, sp.name as specialization, d.img_profile  from doctor d  join schedule s on d.id = s.doctor_id join specialization sp on d.specialization_id = sp.id where s.date = ${getDateToday} group by d.name, s.date, sp.name, d.img_profile `;
 
       const rawTotalTodayAppoitment = await this.prisma.appoitment.findMany({
         select: {
