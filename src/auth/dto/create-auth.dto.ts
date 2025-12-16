@@ -3,9 +3,13 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class CreateAuthDto {}
 
 export class LoginDto {
+  // @IsNotEmpty()
+  // @IsEmail()
+  // email: string;
+
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  @IsString()
+  username: string;
 
   @IsNotEmpty()
   @IsString()
@@ -16,6 +20,10 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  username: string;
 
   @IsNotEmpty()
   @IsString()

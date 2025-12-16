@@ -15,25 +15,26 @@ export class AuthService {
     private jwtService: JwtService,
     private helpers: HelpersService,
   ) {}
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, forCustomer:boolean) {
     try {
       const user = await this.prisma.users.findUnique({
-        where: { email: loginDto.email },
+        where: { username: loginDto.username, role: forCustomer === true ? 'customer' : 'admin' },
       });
 
+
       const doctor = await this.prisma.doctor.findUnique({
-        where: { email: loginDto.email },
+        where: { username: loginDto.username },
       });
 
       if (
-        user &&
+        user && 
         this.helpers.bcryptComapre(loginDto.password, user.password)
       ) {
         const token: string = this.jwtService.sign(
           {
             name: user.name,
             id: user.id,
-            email: user.email,
+            username: user.username,
             role: user.role,
           },
           {
@@ -59,7 +60,7 @@ export class AuthService {
           {
             name: doctor.name,
             id: doctor.id,
-            email: doctor.email,
+            username: doctor.username,
             role: doctor.role,
           },
           {
@@ -79,7 +80,7 @@ export class AuthService {
         return new SuccessResponseService().getResponse({ token });
       } else {
         return new UnauthorizedException(
-          'Email or Passwor Invalid!',
+          'Username or Passwor Invalid!',
         ).getResponse();
       }
     } catch (error) {
@@ -90,12 +91,12 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     try {
       const doctor = await this.prisma.doctor.findUnique({
-        where: { email: registerDto.email },
+        where: { username: registerDto.username },
       });
 
-      if (doctor?.email === registerDto.email) {
+      if (doctor?.username === registerDto.username) {
         return new ExceptionHandlerService().getResponse({
-          message: 'Unique constraint failed on the fields email',
+          message: 'Unique constraint failed on the fields username',
         });
       } else {
         await this.prisma.users.create({

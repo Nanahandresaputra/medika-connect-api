@@ -45,6 +45,7 @@ export class UserService {
       const respObj: ResponseListUserObj[] = users.map((data) => ({
         id: data.id,
         name: data.name,
+        username: data.username,
         email: data.email,
         role: data.role,
         status: data.status,

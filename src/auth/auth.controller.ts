@@ -9,6 +9,7 @@ import {
   Header,
   Headers,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/create-auth.dto';
@@ -20,8 +21,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  login(@Body() loginDto: LoginDto, @Query('forCustomer') forCustomer:boolean) {
+    return this.authService.login(loginDto, forCustomer);
   }
   @Post('register')
   @HttpCode(HttpStatus.OK)
