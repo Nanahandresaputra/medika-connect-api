@@ -10,6 +10,7 @@ import { Request } from 'express';
 import { config } from 'src/config/config';
 import { IS_PUBLIC_KEY } from './auth.decorator';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
+import { JwtDecodeInterface } from 'src/types/jwt-decode.type';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -43,7 +44,7 @@ export class AuthGuard implements CanActivate {
       if (!authData) {
         throw new UnauthorizedException();
       }
-      const payload = await this.jwtService.verifyAsync(tokenData, {
+      const payload:JwtDecodeInterface = await this.jwtService.verifyAsync(tokenData, {
         secret: config.key,
       });
       request['user'] = payload;

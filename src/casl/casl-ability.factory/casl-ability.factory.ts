@@ -16,7 +16,6 @@ import {
   SchedulePolicies,
   SpecializationPolicies,
   UserLogin,
-  userRoleType,
   UsersPolicies,
 } from '../policies.entity';
 
@@ -51,7 +50,7 @@ export class CaslAbilityFactory {
       createPrismaAbility,
     );
 
-    if (userLogin.role === userRoleType.admin) {
+    if (userLogin.role === 'admin') {
       can(Action.Manage, DoctorPolicies);
       can(Action.Manage, SpecializationPolicies);
       can(Action.Manage, SchedulePolicies);
@@ -61,7 +60,7 @@ export class CaslAbilityFactory {
       can(Action.Read, UsersPolicies);
       can(Action.Read, AppoitmentPolicies);
       can(Action.Read, PatientPolicies);
-    } else if (userLogin.role === userRoleType.customer) {
+    } else if (userLogin.role === 'customer') {
       can(Action.Read, MediaInformationPolicies);
       can(Action.Read, AppoitmentPolicies);
       can(Action.Create, AppoitmentPolicies);
@@ -71,7 +70,7 @@ export class CaslAbilityFactory {
       can(Action.Read, DoctorPolicies);
       can(Action.Update, UsersPolicies);
       can(Action.Read, UsersPolicies);
-    } else if (userLogin.role === userRoleType.doctor) {
+    } else if (userLogin.role === 'doctor') {
       can(Action.Read, MediaInformationPolicies);
       can(Action.Read, AppoitmentPolicies);
       can(Action.Update, AppoitmentPolicies);

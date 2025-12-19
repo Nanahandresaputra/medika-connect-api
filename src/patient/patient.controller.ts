@@ -9,6 +9,8 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Headers,
+  Query,
 } from '@nestjs/common';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
@@ -41,16 +43,20 @@ export class PatientController {
     ability.can(Action.Read, PatientPolicies),
   )
   @Get('/for-admin')
-  findAllForAdmin() {
-    return this.patientService.findAllForAdmin();
+  findAllForAdmin(
+        @Query('page') page:string,
+        @Query('limit') limit:string,
+        @Query('search') search:string,
+  ) {
+    return this.patientService.findAllForAdmin({page: +page, limit: +limit, search});
   }
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Manage, PatientPolicies),
   )
-  @Get('/user/:user_id')
-  findAll(@Param('user_id') user_id: string) {
-    return this.patientService.findAllByUser(+user_id);
+  @Get('/user')
+  findAll(@Headers('Authorization') authorization: string) {
+    return this.patientService.findAllByUser(authorization);
   }
 
   @CheckPolicies((ability: AppAbility) =>

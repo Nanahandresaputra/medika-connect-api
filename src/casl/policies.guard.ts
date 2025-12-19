@@ -15,6 +15,7 @@ import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { config } from 'src/config/config';
 import { UserLogin } from './policies.entity';
+import { JwtDecodeInterface } from 'src/types/jwt-decode.type';
 
 @Injectable()
 export class PoliciesGuard implements CanActivate {
@@ -40,12 +41,12 @@ export class PoliciesGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(tokenData, {
+      const payload:JwtDecodeInterface = await this.jwtService.verifyAsync(tokenData, {
         secret: config.key,
       });
       //   request['user'] = payload;
 
-      const user: UserLogin = payload;
+      const user: UserLogin = {id: payload.id, role: payload.role};
 
       const ability = this.caslAbilityFactory.createForUser(user);
 

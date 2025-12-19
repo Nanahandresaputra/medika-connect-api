@@ -5,7 +5,7 @@ import { SuccessResponseService } from 'src/helpers/success-response.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { HelpersService } from 'src/helpers/helpers.service';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
-import { UserInterface } from './interfaces/user.interface';
+import { UserInterface } from './types/user.interface';
 import { FilterData } from 'src/types/filter-data.type';
 
 @Injectable()

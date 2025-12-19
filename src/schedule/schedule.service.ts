@@ -7,7 +7,7 @@ import { SuccessResponseService } from 'src/helpers/success-response.service';
 import {
   ResponseListScheduleByDoctor,
   TimeDateInterface,
-} from './interfaces/schedule.interface';
+} from './types/schedule.interface';
 import { FilterData } from 'src/types/filter-data.type';
 
 @Injectable()

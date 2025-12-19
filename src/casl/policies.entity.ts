@@ -1,12 +1,8 @@
-export enum userRoleType {
-  admin = 'admin',
-  customer = 'customer',
-  doctor = 'doctor',
-}
+
 
 export class UserLogin {
   id: number;
-  role: userRoleType;
+  role: 'customer' | 'doctor' | 'admin';
 }
 
 export class UsersPolicies {
