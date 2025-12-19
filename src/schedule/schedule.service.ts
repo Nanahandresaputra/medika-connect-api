@@ -8,6 +8,7 @@ import {
   ResponseListScheduleByDoctor,
   TimeDateInterface,
 } from './interfaces/schedule.interface';
+import { FilterData } from 'src/types/filter-data.type';
 
 @Injectable()
 export class ScheduleService {
@@ -80,13 +81,13 @@ export class ScheduleService {
     }
   }
 
-  async findAll(doctor_id: number, specialization_id: number, date: string) {
+  async findAll({doctorId, specializationId, date, search}:FilterData) {
     try {
       const doctorData = await this.prisma.doctor.findMany({
         where: {
-          ...(doctor_id && { id: doctor_id }),
-
-          ...(specialization_id && { specialization_id }),
+          ...(doctorId && { id: doctorId }),
+          ...(specializationId && { specialization_id: specializationId }),
+          ...(search && {name: {contains: search, mode: 'insensitive'}}),
           status: 1,
         },
         select: {
@@ -99,7 +100,7 @@ export class ScheduleService {
 
       const scheduleData = await this.prisma.schedule.findMany({
         where: {
-          ...(doctor_id && { doctor_id }),
+          ...(doctorId && { doctor_id: doctorId }),
           ...(date && { date }),
           status: 1,
         },

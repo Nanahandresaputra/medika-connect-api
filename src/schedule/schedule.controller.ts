@@ -45,11 +45,12 @@ export class ScheduleController {
   )
   @Get()
   findAll(
-    @Query('doctor_id') doctor_id: string,
-    @Query('specialization_id') specialization_id: string,
+    @Query('doctorId') doctorId: string,
+    @Query('specializationId') specializationId: string,
     @Query('date') date: string,
+    @Query('search') search: string,
   ) {
-    return this.scheduleService.findAll(+doctor_id, +specialization_id, date);
+    return this.scheduleService.findAll({doctorId:+doctorId, specializationId:+specializationId, date,search});
   }
 
   @CheckPolicies(

@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   Headers,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
@@ -52,8 +53,8 @@ export class DoctorController {
       ability.can(Action.Read, DoctorPolicies),
   )
   @Get()
-  findAll() {
-    return this.doctorService.findAll();
+  findAll(@Query('page') page:string, @Query('limit') limit:string, @Query('search') search: string) {
+    return this.doctorService.findAll({page:+page, limit:+limit, search});
   }
 
   @CheckPolicies(

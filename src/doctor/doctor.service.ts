@@ -5,7 +5,8 @@ import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { SuccessResponseService } from 'src/helpers/success-response.service';
 import { HelpersService } from 'src/helpers/helpers.service';
-import { ResponseListDoctorObj } from './inerfaces/doctor.inerface';
+import { DoctorInterface } from './types/doctor.inerface';
+import { FilterData } from 'src/types/filter-data.type';
 
 @Injectable()
 export class DoctorService {
@@ -78,39 +79,34 @@ export class DoctorService {
     }
   }
 
-  async findAll() {
+  async findAll({page, limit, search}:FilterData) {
     try {
       const doctorList = await this.prisma.doctor.findMany({
-        select: {
-          id: true,
-          img_profile: true,
-          ext_img_id: true,
-          name: true,
-          code_doctor: true,
-          phone_number: true,
-          address: true,
-          email: true,
-          specialization: {
-            select: { id: true, name: true },
-          },
-          status: true,
+        omit: {password: true, specialization_id: true},
+        include: {specialization: {select:{id:true, name: true}}},
+        where: {
+          ...(search && {name: {contains: search, mode: 'insensitive'}}),
         },
+        ...(limit && page) && {skip: limit * (page - 1)},
+        ...(limit && page) && {take: limit},
+        
       });
 
-      // const doctorResp: ResponseListDoctorObj[] = doctorList.map((data) => ({
-      //   id: data.id,
+      const doctorResp: DoctorInterface[] = doctorList.map((data) => ({
+        id: data.id,
+        name: data.name,
+        username: data.username,
+        code_doctor: data.code_doctor,
+        phone_number: data.phone_number,
+        address: data.address,
+        email: data.email,
+        specialization: data.specialization,
+        status: data.status,
+        ext_img_id: data.ext_img_id,
+        img_profile:data.img_profile
+      }));
 
-      //   name: data.name,
-      //   username: data.username,
-      //   code_doctor: data.code_doctor,
-      //   phone_number: data.phone_number,
-      //   address: data.address,
-      //   email: data.email,
-      //   specialization_id: data.specialization_id,
-      //   status: data.status,
-      // }));
-
-      return new SuccessResponseService().getResponse(doctorList);
+      return new SuccessResponseService().getResponse(doctorResp);
     } catch (error) {
       return new ExceptionHandlerService().getResponse(error);
     }

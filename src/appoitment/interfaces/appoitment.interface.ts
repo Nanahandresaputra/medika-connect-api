@@ -1,4 +1,4 @@
-export interface AppoitmentResponse {
+export interface AppoitmentInterface {
   id: number;
   doctor: string;
   patient: string;

@@ -1,4 +1,6 @@
-export interface ResponseListDoctorObj {
+
+
+export interface DoctorInterface {
   id: number;
   username: string;
   name: string;
@@ -6,6 +8,8 @@ export interface ResponseListDoctorObj {
   phone_number: string;
   address: string;
   email: string;
-  specialization_id: number;
+  specialization: SpecializationInterface;
   status: number;
+  ext_img_id: string;
+  img_profile: string;
 }

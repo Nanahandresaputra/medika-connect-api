@@ -1,8 +1,8 @@
-export interface ResponseListUserObj {
+export interface UserInterface {
   id: number;
   name: string;
   username: string;
   email: string;
-  role: string;
+  role: 'admin' | 'customer';
   status: number;
 }

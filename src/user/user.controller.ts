@@ -1,7 +1,5 @@
 import {
-  Controller,
-  Get,
-  Post,
+  Controller, Get, Post,
   Body,
   Patch,
   Param,
@@ -9,6 +7,7 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -41,17 +40,15 @@ export class UserController {
     ability.can(Action.Read, UsersPolicies),
   )
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(
+    @Query('page') page:string,
+    @Query('limit') limit:string,
+    @Query('roleUser') roleUser: 'admin' | 'customer',
+    @Query('search') search:string,
+  ) {
+    return this.userService.findAll({page: +page, limit: +limit, roleUser, search});
   }
 
-  @CheckPolicies((ability: AppAbility) =>
-    ability.can(Action.Read, UsersPolicies),
-  )
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Update, UsersPolicies),

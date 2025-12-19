@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { SpecializationService } from './specialization.service';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
@@ -43,8 +44,8 @@ export class SpecializationController {
       ability.can(Action.Read, SpecializationPolicies),
   )
   @Get()
-  findAll() {
-    return this.specializationService.findAll();
+  findAll(@Query('limit') limit:string, @Query('page') page:string, @Query('search') search:string) {
+    return this.specializationService.findAll({limit:+limit, page:+page, search});
   }
 
   @CheckPolicies((ability: AppAbility) =>

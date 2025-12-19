@@ -5,12 +5,15 @@ import { HelpersService } from 'src/helpers/helpers.service';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { SuccessResponseService } from 'src/helpers/success-response.service';
-import { AppoitmentResponse } from './interfaces/appoitment.interface';
+import { AppoitmentInterface } from './interfaces/appoitment.interface';
 import { Cron } from '@nestjs/schedule';
+import { FilterData } from 'src/types/filter-data.type';
+const moment = require('moment');
+
 
 @Injectable()
 export class AppoitmentService {
-  private readonly logger = new Logger(AppoitmentService.name);
+  private readonly logger = new Logger(AppoitmentService.name); // LOGGER FOR DEVELOPMENT ONLY
   constructor(
     private helpers: HelpersService,
     private prisma: PrismaService,
@@ -36,13 +39,27 @@ export class AppoitmentService {
     }
   }
 
-  async findAll(doctor_id: number, patient_id: number) {
+  async findAll({
+    doctorId,
+    patientId,
+    limit,
+    page,
+    startDate,
+    endDate, search
+  }: FilterData) {
     try {
       const appoitmentData = await this.prisma.appoitment.findMany({
         where: {
-          ...(doctor_id && { doctor_id }),
-          ...(patient_id && { patient_id }),
+          ...(doctorId && { doctor_id: doctorId }),
+          ...(patientId && { patient_id: patientId }),
+          ...(search && { appoitment_code: search }),
+          ...(startDate &&
+            endDate && {
+              date_time: {gte: moment(`${startDate} 00:00`).format('YYYY-MM-DD HH:mm'), lte: moment(`${endDate} 23:59`).format('YYYY-MM-DD HH:mm')}
+            }),
         },
+        ...(limit && page && { skip: limit * (page - 1) }),
+        ...(limit && page && { take: limit }),
         select: {
           id: true,
           doctor: {
@@ -55,7 +72,7 @@ export class AppoitmentService {
         },
       });
 
-      const respData: AppoitmentResponse[] = appoitmentData.map((data) => ({
+      const respData: AppoitmentInterface[] = appoitmentData.map((data) => ({
         id: data.id,
         doctor: data.doctor.name,
         patient: data.patient.name,

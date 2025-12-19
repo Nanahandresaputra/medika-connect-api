@@ -5,7 +5,8 @@ import { SuccessResponseService } from 'src/helpers/success-response.service';
 import { ExceptionHandlerService } from 'src/helpers/exception-handler.service';
 import { HelpersService } from 'src/helpers/helpers.service';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
-import { ResponseListUserObj } from './interfaces/user.interface';
+import { UserInterface } from './interfaces/user.interface';
+import { FilterData } from 'src/types/filter-data.type';
 
 @Injectable()
 export class UserService {
@@ -38,11 +39,20 @@ export class UserService {
     }
   }
 
-  async findAll() {
+  async findAll({limit, page, search, roleUser}:FilterData) {
     try {
-      const users = await this.prisma.users.findMany();
+      const users = await this.prisma.users.findMany({
+        where: {
+          ...(search && {name: {contains: search, mode: 'insensitive'}}),
+          ...(roleUser && {role: roleUser}),
+        },
+         ...(page && limit && {
+            skip: limit * (page - 1),
+          }),
+        ...(page && limit && { take: limit }),
+      });
 
-      const respObj: ResponseListUserObj[] = users.map((data) => ({
+      const respObj: UserInterface[] = users.map((data) => ({
         id: data.id,
         name: data.name,
         username: data.username,
@@ -57,9 +67,6 @@ export class UserService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {

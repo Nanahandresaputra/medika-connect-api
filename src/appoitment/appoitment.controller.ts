@@ -43,10 +43,15 @@ export class AppoitmentController {
   )
   @Get()
   findAll(
-    @Query('doctor_id') doctor_id: string,
-    @Query('patient_id') patient_id: string,
+    @Query('doctorId') doctorId: string,
+    @Query('patientId') patientId: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('search') search: string,
   ) {
-    return this.appoitmentService.findAll(+doctor_id, +patient_id);
+    return this.appoitmentService.findAll({page: +page, limit: +limit, patientId: +patientId, doctorId: +doctorId, startDate, endDate,search});
   }
 
   @CheckPolicies((ability: AppAbility) =>
