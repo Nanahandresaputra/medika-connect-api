@@ -20,6 +20,7 @@ import {
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { UsersPolicies } from 'src/casl/policies.entity';
+import { ApiProperty, ApiQuery } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -40,6 +41,10 @@ export class UserController {
     ability.can(Action.Read, UsersPolicies),
   )
   @Get()
+  @ApiQuery({name: 'page', required: false})
+  @ApiQuery({name: 'limit', required: false})
+  @ApiQuery({name: 'roleUser', required: false})
+  @ApiQuery({name: 'search', required: false})
   findAll(
     @Query('page') page:string,
     @Query('limit') limit:string,
