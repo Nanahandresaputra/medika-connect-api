@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -54,7 +55,7 @@ export class PoliciesGuard implements CanActivate {
         this.execPolicyHandler(handler, ability),
       );
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
   }
 
