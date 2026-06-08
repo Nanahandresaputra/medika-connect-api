@@ -15,8 +15,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
-import { CreateDoctorDto } from './dto/create-doctor.dto';
-import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PoliciesGuard } from 'src/casl/policies.guard';
@@ -25,7 +23,10 @@ import {
   Action,
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { DashboardPolicies, DoctorPolicies } from 'src/casl/policies.entity';
+import { DoctorPolicies } from 'src/casl/policies.entity';
+import { RequestCreateDoctorDto } from './dto/request-create-doctor.dto';
+import { RequestUpdateDoctorDto } from './dto/request-update-doctor.dto';
+import { WebFilterDto } from 'src/common-dto/web-filter.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -40,7 +41,7 @@ export class DoctorController {
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
   create(
-    @Body() createDoctorDto: CreateDoctorDto,
+    @Body() createDoctorDto: RequestCreateDoctorDto,
     @Headers('Authorization') authorization: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
@@ -53,8 +54,8 @@ export class DoctorController {
       ability.can(Action.Read, DoctorPolicies),
   )
   @Get()
-  findAll(@Query('page') page:string, @Query('limit') limit:string, @Query('search') search: string) {
-    return this.doctorService.findAll({page:+page, limit:+limit, search});
+  findAll(@Query() filterDto: WebFilterDto) {
+    return this.doctorService.findAll(filterDto);
   }
 
   @CheckPolicies(
@@ -67,7 +68,7 @@ export class DoctorController {
   @UseInterceptors(FileInterceptor('file'))
   update(
     @Param('id') id: string,
-    @Body() updateDoctorDto: UpdateDoctorDto,
+    @Body() updateDoctorDto: RequestUpdateDoctorDto,
     @Headers('Authorization') authorization: string,
     @UploadedFile() file: Express.Multer.File,
   ) {

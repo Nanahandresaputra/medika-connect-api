@@ -1,5 +1,7 @@
 import {
-  Controller, Get, Post,
+  Controller,
+  Get,
+  Post,
   Body,
   Patch,
   Param,
@@ -10,8 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PoliciesGuard } from 'src/casl/policies.guard';
 import { CheckPolicies } from 'src/casl/policies.decorator';
@@ -21,6 +21,9 @@ import {
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { UsersPolicies } from 'src/casl/policies.entity';
 import { ApiProperty, ApiQuery } from '@nestjs/swagger';
+import { RequestCreateUserDto } from './dto/request-create-user.dto';
+import { WebFilterDto } from 'src/common-dto/web-filter.dto';
+import { RequestUpdateUserDto } from './dto/request-update-user.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -33,7 +36,7 @@ export class UserController {
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: RequestCreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
@@ -41,26 +44,20 @@ export class UserController {
     ability.can(Action.Read, UsersPolicies),
   )
   @Get()
-  @ApiQuery({name: 'page', required: false})
-  @ApiQuery({name: 'limit', required: false})
-  @ApiQuery({name: 'roleUser', required: false})
-  @ApiQuery({name: 'search', required: false})
-  findAll(
-    @Query('page') page:string,
-    @Query('limit') limit:string,
-    @Query('roleUser') roleUser: 'admin' | 'customer',
-    @Query('search') search:string,
-  ) {
-    return this.userService.findAll({page: +page, limit: +limit, roleUser, search});
+  // @ApiQuery({ name: 'page', required: false })
+  // @ApiQuery({ name: 'limit', required: false })
+  // @ApiQuery({ name: 'roleUser', required: false })
+  // @ApiQuery({ name: 'search', required: false })
+  findAll(@Query() filterDto: WebFilterDto) {
+    return this.userService.findAll(filterDto);
   }
-
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Update, UsersPolicies),
   )
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id') id: string, @Body() updateUserDto: RequestUpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 

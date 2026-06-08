@@ -12,8 +12,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
-import { CreateScheduleDto } from './dto/create-schedule.dto';
-import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PoliciesGuard } from 'src/casl/policies.guard';
 import { CheckPolicies } from 'src/casl/policies.decorator';
@@ -22,6 +20,9 @@ import {
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { SchedulePolicies } from 'src/casl/policies.entity';
+import { RequestCreateScheduleDto } from './dto/request-create-schedule.dto';
+import { RequestUpdateScheduleDto } from './dto/request-update-schedule.dto';
+import { WebFilterDto } from 'src/common-dto/web-filter.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -34,7 +35,7 @@ export class ScheduleController {
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createScheduleDto: CreateScheduleDto) {
+  create(@Body() createScheduleDto: RequestCreateScheduleDto) {
     return this.scheduleService.create(createScheduleDto);
   }
 
@@ -44,13 +45,8 @@ export class ScheduleController {
       ability.can(Action.Read, SchedulePolicies),
   )
   @Get()
-  findAll(
-    @Query('doctorId') doctorId: string,
-    @Query('specializationId') specializationId: string,
-    @Query('date') date: string,
-    @Query('search') search: string,
-  ) {
-    return this.scheduleService.findAll({doctorId:+doctorId, specializationId:+specializationId, date,search});
+  findAll(@Query() filterDto: WebFilterDto) {
+    return this.scheduleService.findAll(filterDto);
   }
 
   @CheckPolicies(
@@ -70,7 +66,7 @@ export class ScheduleController {
   @HttpCode(HttpStatus.OK)
   update(
     @Param('doctor_id') doctor_id: string,
-    @Body() updateScheduleDto: UpdateScheduleDto,
+    @Body() updateScheduleDto: RequestUpdateScheduleDto,
   ) {
     return this.scheduleService.update(+doctor_id, updateScheduleDto);
   }

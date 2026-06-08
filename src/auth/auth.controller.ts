@@ -12,8 +12,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto/create-auth.dto';
 import { AuthGuard } from './auth.guard';
+import { RequestLoginDto } from './dto/request-login.dto';
+import { RequestRegisterDto } from './dto/request-register.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,12 +22,15 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginDto: LoginDto, @Query('forCustomer') forCustomer:boolean) {
+  login(
+    @Body() loginDto: RequestLoginDto,
+    @Query('forCustomer') forCustomer: boolean,
+  ) {
     return this.authService.login(loginDto, forCustomer);
   }
   @Post('register')
   @HttpCode(HttpStatus.OK)
-  register(@Body() registerDto: RegisterDto) {
+  register(@Body() registerDto: RequestRegisterDto) {
     return this.authService.register(registerDto);
   }
 

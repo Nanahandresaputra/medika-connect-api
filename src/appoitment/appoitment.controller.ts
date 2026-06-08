@@ -12,8 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { AppoitmentService } from './appoitment.service';
-import { CreateAppoitmentDto } from './dto/create-appoitment.dto';
-import { UpdateAppoitmentDto } from './dto/update-appoitment.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CheckPolicies } from 'src/casl/policies.decorator';
 import {
@@ -22,6 +20,9 @@ import {
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { AppoitmentPolicies } from 'src/casl/policies.entity';
 import { PoliciesGuard } from 'src/casl/policies.guard';
+import { RequestCreateAppoitmentDto } from './dto/request-create-appoitment.dto';
+import { RequestUpdateAppoitmentDto } from './dto/request-update-appoitment.dto';
+import { WebFilterDto } from 'src/common-dto/web-filter.dto';
 
 @Controller('appoitment')
 @UseGuards(AuthGuard)
@@ -34,7 +35,7 @@ export class AppoitmentController {
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createAppoitmentDto: CreateAppoitmentDto) {
+  create(@Body() createAppoitmentDto: RequestCreateAppoitmentDto) {
     return this.appoitmentService.create(createAppoitmentDto);
   }
 
@@ -42,16 +43,8 @@ export class AppoitmentController {
     ability.can(Action.Read, AppoitmentPolicies),
   )
   @Get()
-  findAll(
-    @Query('doctorId') doctorId: string,
-    @Query('patientId') patientId: string,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-    @Query('search') search: string,
-  ) {
-    return this.appoitmentService.findAll({page: +page, limit: +limit, patientId: +patientId, doctorId: +doctorId, startDate, endDate,search});
+  findAll(@Query() filterDto: WebFilterDto) {
+    return this.appoitmentService.findAll(filterDto);
   }
 
   @CheckPolicies((ability: AppAbility) =>
@@ -61,7 +54,7 @@ export class AppoitmentController {
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id') id: string,
-    @Body() updateAppoitmentDto: UpdateAppoitmentDto,
+    @Body() updateAppoitmentDto: RequestUpdateAppoitmentDto,
   ) {
     return this.appoitmentService.update(+id, updateAppoitmentDto);
   }

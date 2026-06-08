@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -13,8 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { PatientService } from './patient.service';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PoliciesGuard } from 'src/casl/policies.guard';
 import { CheckPolicies } from 'src/casl/policies.decorator';
@@ -23,6 +20,9 @@ import {
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { PatientPolicies } from 'src/casl/policies.entity';
+import { RequestCreatePatientDto } from './dto/request-create-patient.dto';
+import { RequestUpdatePatientDto } from './dto/request-update-patient.dto';
+import { WebFilterDto } from 'src/common-dto/web-filter.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -35,7 +35,7 @@ export class PatientController {
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createPatientDto: CreatePatientDto) {
+  create(@Body() createPatientDto: RequestCreatePatientDto) {
     return this.patientService.create(createPatientDto);
   }
 
@@ -43,12 +43,8 @@ export class PatientController {
     ability.can(Action.Read, PatientPolicies),
   )
   @Get('/for-admin')
-  findAllForAdmin(
-        @Query('page') page:string,
-        @Query('limit') limit:string,
-        @Query('search') search:string,
-  ) {
-    return this.patientService.findAllForAdmin({page: +page, limit: +limit, search});
+  findAllForAdmin(@Query() filterDto: WebFilterDto) {
+    return this.patientService.findAllForAdmin(filterDto);
   }
 
   @CheckPolicies((ability: AppAbility) =>
@@ -64,7 +60,10 @@ export class PatientController {
   )
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updatePatientDto: RequestUpdatePatientDto,
+  ) {
     return this.patientService.update(+id, updatePatientDto);
   }
 }

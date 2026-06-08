@@ -14,6 +14,9 @@ import { MediaInformationModule } from './media-information/media-information.mo
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ScheduleModule as SchedulerModule } from '@nestjs/schedule';
 import { CaslModule } from './casl/casl.module';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { GlobalResponseInterceptor } from './helpers/global-response.interceptor';
+import { GLobalExceptionFilter } from './helpers/gobal-exception.filter';
 
 @Module({
   imports: [
@@ -42,6 +45,15 @@ import { CaslModule } from './casl/casl.module';
   ],
   controllers: [],
   providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: GlobalResponseInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GLobalExceptionFilter,
+    },
+
     // {
     //   provide: APP_GUARD,
     //   useClass: AuthGuard,

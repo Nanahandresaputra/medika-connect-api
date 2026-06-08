@@ -12,8 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { SpecializationService } from './specialization.service';
-import { CreateSpecializationDto } from './dto/create-specialization.dto';
-import { UpdateSpecializationDto } from './dto/update-specialization.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PoliciesGuard } from 'src/casl/policies.guard';
 import { CheckPolicies } from 'src/casl/policies.decorator';
@@ -22,6 +20,9 @@ import {
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { SpecializationPolicies } from 'src/casl/policies.entity';
+import { RequestCreateSpecializationDto } from './dto/request-create-specialization.dto';
+import { RequestUpdateSpecializationDto } from './dto/request-update-specialization.dto';
+import { WebFilterDto } from 'src/common-dto/web-filter.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -34,7 +35,7 @@ export class SpecializationController {
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createSpecializationDto: CreateSpecializationDto) {
+  create(@Body() createSpecializationDto: RequestCreateSpecializationDto) {
     return this.specializationService.create(createSpecializationDto);
   }
 
@@ -44,8 +45,8 @@ export class SpecializationController {
       ability.can(Action.Read, SpecializationPolicies),
   )
   @Get()
-  findAll(@Query('limit') limit:string, @Query('page') page:string, @Query('search') search:string) {
-    return this.specializationService.findAll({limit:+limit, page:+page, search});
+  findAll(@Query() filterDto: WebFilterDto) {
+    return this.specializationService.findAll(filterDto);
   }
 
   @CheckPolicies((ability: AppAbility) =>
@@ -55,7 +56,7 @@ export class SpecializationController {
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id') id: string,
-    @Body() updateSpecializationDto: UpdateSpecializationDto,
+    @Body() updateSpecializationDto: RequestUpdateSpecializationDto,
   ) {
     return this.specializationService.update(+id, updateSpecializationDto);
   }
