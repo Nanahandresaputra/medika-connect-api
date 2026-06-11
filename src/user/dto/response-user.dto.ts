@@ -12,7 +12,7 @@ import {
 import { roleUser } from 'src/common-dto/web-filter.dto';
 import { WebResponseDto } from 'src/common-dto/web-response.dto';
 
-class ResultUserDto {
+export class ResponseUserDto {
   @IsNotEmpty()
   @IsInt()
   id: number;
@@ -37,11 +37,4 @@ class ResultUserDto {
   @IsNotEmpty()
   @IsInt()
   status: number;
-}
-
-export class ResponseUserDto extends PartialType(WebResponseDto) {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResultUserDto)
-  data: ResultUserDto[];
 }

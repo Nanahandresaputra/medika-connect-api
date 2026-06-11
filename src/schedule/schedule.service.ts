@@ -5,16 +5,14 @@ import { WebResponseDto } from 'src/common-dto/web-response.dto';
 import { WebFilterDto } from 'src/common-dto/web-filter.dto';
 import {
   ResponseScheduleByDoctor,
-  ResponseScheduleByDoctorOne,
-  ResultScheduleByDoctor,
   ScheduleTimeDateDto,
 } from './dto/response-schedule.dto';
 import { RequestUpdateScheduleDto } from './dto/request-update-schedule.dto';
 
 @Injectable()
 export class ScheduleService {
-  constructor(private prisma: PrismaService) {}
-  async create(createScheduleDto: RequestCreateScheduleDto) {
+  constructor(private prisma: PrismaService) { }
+  async create(createScheduleDto: RequestCreateScheduleDto) : Promise<WebResponseDto> {
     let initial: ScheduleTimeDateDto[] = [];
 
     const exitingSchedule = await this.prisma.schedule.findMany({
@@ -37,9 +35,9 @@ export class ScheduleService {
       .filter(
         (data) =>
           data.date ===
-            exitingSchedule.find((dat) => dat.date === data.date)?.date &&
+          exitingSchedule.find((dat) => dat.date === data.date)?.date &&
           data.time ===
-            exitingSchedule.find((dat) => dat.time === data.time)?.time,
+          exitingSchedule.find((dat) => dat.time === data.time)?.time,
       )
       .map((data) => ({
         id: exitingSchedule.find(
@@ -63,9 +61,9 @@ export class ScheduleService {
     const filterNotExiting = initial.filter(
       (data) =>
         data.date !==
-          exitingSchedule.find((dat) => dat.date === data.date)?.date ||
+        exitingSchedule.find((dat) => dat.date === data.date)?.date ||
         data.time !==
-          exitingSchedule.find((dat) => dat.time === data.time)?.time,
+        exitingSchedule.find((dat) => dat.time === data.time)?.time,
     );
 
     if (filterNotExiting.length > 0) {
@@ -82,7 +80,7 @@ export class ScheduleService {
     return resp;
   }
 
-  async findAll({ doctorId, specializationId, date, search }: WebFilterDto) {
+  async findAll({ doctorId, specializationId, date, search }: WebFilterDto): Promise<ResponseScheduleByDoctor[]> {
     const doctorData = await this.prisma.doctor.findMany({
       where: {
         ...(doctorId && { id: doctorId }),
@@ -110,34 +108,30 @@ export class ScheduleService {
       },
     });
 
-    const sendResp: ResponseScheduleByDoctor = {
-      data: doctorData
-        .map((doctor) => ({
-          id: doctor.id,
-          name: doctor.name,
-          specialization: doctor.specialization,
-          schedule_doctor_id: scheduleData.find(
-            (data) => data.doctor_id === doctor.id,
-          )?.doctor_id,
-          schedule: [...new Set(scheduleData.map((data) => data.date))].map(
-            (dateData) => ({
-              date: scheduleData.find((data) => data.date === dateData)?.date,
-              time: scheduleData
-                .filter((timeData) => timeData.date === dateData)
-                .map((timeData) => timeData.time)
-                .sort(),
-            }),
-          ),
-        }))
-        .filter(
-          (data) => data.schedule_doctor_id === data.id,
-        ) as ResultScheduleByDoctor[],
-    };
-
-    return sendResp;
+    return doctorData
+      .map((doctor) => ({
+        id: doctor.id,
+        name: doctor.name,
+        specialization: doctor.specialization,
+        schedule_doctor_id: scheduleData.find(
+          (data) => data.doctor_id === doctor.id,
+        )?.doctor_id,
+        schedule: [...new Set(scheduleData.map((data) => data.date))].map(
+          (dateData) => ({
+            date: scheduleData.find((data) => data.date === dateData)?.date,
+            time: scheduleData
+              .filter((timeData) => timeData.date === dateData)
+              .map((timeData) => timeData.time)
+              .sort(),
+          }),
+        ),
+      }))
+      .filter(
+        (data) => data.schedule_doctor_id === data.id,
+      ) as ResponseScheduleByDoctor[]
   }
 
-  async findOneByDoctor(doctor_id: number) {
+  async findOneByDoctor(doctor_id: number) : Promise<ResponseScheduleByDoctor> {
     const doctorData = await this.prisma.doctor.findUnique({
       where: {
         id: doctor_id,
@@ -158,8 +152,7 @@ export class ScheduleService {
       select: { time: true, date: true },
     });
 
-    const sendResp: ResponseScheduleByDoctorOne = {
-      data: {
+    return {
         id: doctorData?.id as number,
         name: doctorData?.name as string,
         specialization: {
@@ -174,13 +167,10 @@ export class ScheduleService {
               .map((timeData) => timeData.time),
           }),
         ) as ScheduleTimeDateDto[],
-      },
-    };
-
-    return sendResp;
+      };
   }
 
-  async update(doctor_id: number, updateScheduleDto: RequestUpdateScheduleDto) {
+  async update(doctor_id: number, updateScheduleDto: RequestUpdateScheduleDto) : Promise<WebResponseDto> {
     const newTime = updateScheduleDto.time.map((data) => ({
       doctor_id,
       date: updateScheduleDto.date,
@@ -259,28 +249,10 @@ export class ScheduleService {
             });
           });
       }
-      // else {
-      //   console.log('trigger else two -->');
-      //   const notExitingDataTime = newTime.filter(
-      //     (data) =>
-      //       datagTime.find((dt) => dt.time === data.time)?.time !== data.time,
-      //   );
-
-      //   console.log('else time -->>', {
-      //     sendDataCreate: sendDataCreate.filter(
-      //       (data) =>
-      //         datagTime.find((dt) => dt.time === data.time)?.time !==
-      //         data.time,
-      //     ),
-      //   });
-      //   // await this.prisma.schedule.createMany({ data: sendDataCreate });
-      // }
     }
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-
-    return resp;
   }
 }

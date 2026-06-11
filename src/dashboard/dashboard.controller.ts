@@ -8,18 +8,19 @@ import {
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { PoliciesGuard } from 'src/casl/policies.guard';
 import { DashboardPolicies } from 'src/casl/policies.entity';
+import { ResponseDashboarddDto } from './dto/response-dashboard.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
 @Controller('dashboard')
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(private readonly dashboardService: DashboardService) { }
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Read, DashboardPolicies),
   )
   @Get()
-  findAll() {
+  findAll(): Promise<ResponseDashboarddDto> {
     return this.dashboardService.findAll();
   }
 }

@@ -17,12 +17,12 @@ export class DoctorService {
   constructor(
     private prisma: PrismaService,
     private helpers: HelpersService,
-  ) {}
+  ) { }
   async create(
     createDoctorDto: RequestCreateDoctorDto,
     authorization: string,
     file: any,
-  ) {
+  ): Promise<WebResponseDto> {
     const user = await this.prisma.users.findUnique({
       where: { email: createDoctorDto.email },
     });
@@ -78,14 +78,13 @@ export class DoctorService {
         });
       }
 
-      const resp: WebResponseDto = {
+      return {
         message: 'Success',
       };
-      return resp;
     }
   }
 
-  async findAll({ page, limit, search }: WebFilterDto) {
+  async findAll({ page, limit, search }: WebFilterDto): Promise<ResponseDoctorDto[]> {
     const doctorList = await this.prisma.doctor.findMany({
       omit: { password: true, specialization_id: true },
       include: { specialization: { select: { id: true, name: true } } },
@@ -96,23 +95,19 @@ export class DoctorService {
       ...(limit && page && { take: limit }),
     });
 
-    const resp: ResponseDoctorDto = {
-      data: doctorList.map((data) => ({
-        id: data.id,
-        name: data.name,
-        username: data.username,
-        code_doctor: data.code_doctor,
-        phone_number: data.phone_number,
-        address: data.address,
-        email: data.email,
-        specialization: data.specialization,
-        status: data.status,
-        ext_img_id: data.ext_img_id,
-        img_profile: data.img_profile,
-      })),
-    };
-
-    return resp;
+    return doctorList.map((data) => ({
+      id: data.id,
+      name: data.name,
+      username: data.username,
+      code_doctor: data.code_doctor,
+      phone_number: data.phone_number,
+      address: data.address,
+      email: data.email,
+      specialization: data.specialization,
+      status: data.status,
+      ext_img_id: data.ext_img_id,
+      img_profile: data.img_profile,
+    }));
   }
 
   async update(
@@ -120,11 +115,11 @@ export class DoctorService {
     updateDoctorDto: RequestUpdateDoctorDto,
     authorization: string,
     file: any,
-  ) {
+  ): Promise<WebResponseDto> {
     const user = updateDoctorDto?.email
       ? await this.prisma.users.findUnique({
-          where: { email: updateDoctorDto.email },
-        })
+        where: { email: updateDoctorDto.email },
+      })
       : null;
 
     if (user && user.email === updateDoctorDto.email) {
@@ -219,10 +214,9 @@ export class DoctorService {
         });
       }
 
-      const resp: WebResponseDto = {
+      return {
         message: 'Success',
       };
-      return resp;
     }
   }
 }

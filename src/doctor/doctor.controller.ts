@@ -27,12 +27,14 @@ import { DoctorPolicies } from 'src/casl/policies.entity';
 import { RequestCreateDoctorDto } from './dto/request-create-doctor.dto';
 import { RequestUpdateDoctorDto } from './dto/request-update-doctor.dto';
 import { WebFilterDto } from 'src/common-dto/web-filter.dto';
+import { WebResponseDto } from 'src/common-dto/web-response.dto';
+import { ResponseDoctorDto } from './dto/response-doctor.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
 @Controller('doctor')
 export class DoctorController {
-  constructor(private readonly doctorService: DoctorService) {}
+  constructor(private readonly doctorService: DoctorService) { }
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Manage, DoctorPolicies),
@@ -44,7 +46,7 @@ export class DoctorController {
     @Body() createDoctorDto: RequestCreateDoctorDto,
     @Headers('Authorization') authorization: string,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<WebResponseDto> {
     return this.doctorService.create(createDoctorDto, authorization, file);
   }
 
@@ -54,7 +56,7 @@ export class DoctorController {
       ability.can(Action.Read, DoctorPolicies),
   )
   @Get()
-  findAll(@Query() filterDto: WebFilterDto) {
+  findAll(@Query() filterDto: WebFilterDto): Promise<ResponseDoctorDto[]> {
     return this.doctorService.findAll(filterDto);
   }
 
@@ -71,7 +73,7 @@ export class DoctorController {
     @Body() updateDoctorDto: RequestUpdateDoctorDto,
     @Headers('Authorization') authorization: string,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<WebResponseDto> {
     return this.doctorService.update(+id, updateDoctorDto, authorization, file);
   }
 }

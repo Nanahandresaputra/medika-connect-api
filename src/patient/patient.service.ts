@@ -14,37 +14,31 @@ export class PatientService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
-  async create(createPatientDto: RequestCreatePatientDto) {
+  ) { }
+  async create(createPatientDto: RequestCreatePatientDto): Promise<WebResponseDto> {
     await this.prisma.patient.create({ data: createPatientDto });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-
-    return resp;
   }
 
-  async findAllForAdmin({ limit, page, search }: WebFilterDto) {
+  async findAllForAdmin({ limit, page, search }: WebFilterDto): Promise<ResponsePatientDto[]> {
     const patientDatas = await this.prisma.patient.findMany({
       where: {
         ...(search && { name: { contains: search, mode: 'insensitive' } }),
       },
       ...(page &&
         limit && {
-          skip: limit * (page - 1),
-        }),
+        skip: limit * (page - 1),
+      }),
       ...(page && limit && { take: limit }),
     });
 
-    const resp: ResponsePatientDto = {
-      data: patientDatas,
-    };
-
-    return resp;
+    return patientDatas;
   }
 
-  async findAllByUser(authorization: string) {
+  async findAllByUser(authorization: string): Promise<ResponsePatientDto[]> {
     const tokenData: string = authorization.replace('Bearer ', '');
     const payload: JwtDecodeInterface = await this.jwtService.verifyAsync(
       tokenData,
@@ -55,23 +49,19 @@ export class PatientService {
     const patientDatas = await this.prisma.patient.findMany({
       where: { user_id: payload.id },
     });
-    const resp: ResponsePatientDto = {
-      data: patientDatas,
-    };
 
-    return resp;
+
+    return patientDatas;
   }
 
-  async update(id: number, updatePatientDto: RequestUpdatePatientDto) {
+  async update(id: number, updatePatientDto: RequestUpdatePatientDto): Promise<WebResponseDto> {
     await this.prisma.patient.update({
       data: updatePatientDto,
       where: { id },
     });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-
-    return resp;
   }
 }

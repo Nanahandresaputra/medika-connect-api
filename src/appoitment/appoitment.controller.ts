@@ -23,19 +23,21 @@ import { PoliciesGuard } from 'src/casl/policies.guard';
 import { RequestCreateAppoitmentDto } from './dto/request-create-appoitment.dto';
 import { RequestUpdateAppoitmentDto } from './dto/request-update-appoitment.dto';
 import { WebFilterDto } from 'src/common-dto/web-filter.dto';
+import { WebResponseDto } from 'src/common-dto/web-response.dto';
+import { ResponseAppoitmentDto } from './dto/response-appoitment.dto';
 
 @Controller('appoitment')
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
 export class AppoitmentController {
-  constructor(private readonly appoitmentService: AppoitmentService) {}
+  constructor(private readonly appoitmentService: AppoitmentService) { }
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Create, AppoitmentPolicies),
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createAppoitmentDto: RequestCreateAppoitmentDto) {
+  create(@Body() createAppoitmentDto: RequestCreateAppoitmentDto): Promise<WebResponseDto> {
     return this.appoitmentService.create(createAppoitmentDto);
   }
 
@@ -43,7 +45,7 @@ export class AppoitmentController {
     ability.can(Action.Read, AppoitmentPolicies),
   )
   @Get()
-  findAll(@Query() filterDto: WebFilterDto) {
+  findAll(@Query() filterDto: WebFilterDto): Promise<ResponseAppoitmentDto[]> {
     return this.appoitmentService.findAll(filterDto);
   }
 
@@ -55,7 +57,7 @@ export class AppoitmentController {
   update(
     @Param('id') id: string,
     @Body() updateAppoitmentDto: RequestUpdateAppoitmentDto,
-  ) {
+  ): Promise<WebResponseDto> {
     return this.appoitmentService.update(+id, updateAppoitmentDto);
   }
 }

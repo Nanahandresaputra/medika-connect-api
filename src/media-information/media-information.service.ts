@@ -1,13 +1,12 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Response } from 'express';
 import { WebResponseDto } from 'src/common-dto/web-response.dto';
 import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { ResponseMediaDto } from './dto/response-media.dto';
 
 @Injectable()
 export class MediaInformationService {
-  constructor(private prisma: PrismaService) {}
-  async create(authorization: string, file: any) {
+  constructor(private prisma: PrismaService) { }
+  async create(authorization: string, file: any): Promise<WebResponseDto> {
     const generatename = `MEDIA-${Date.now().toString(36).toUpperCase()}-${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDay()}${new Date().getTime()}`;
 
     const formData = new FormData();
@@ -31,31 +30,28 @@ export class MediaInformationService {
       },
     );
 
-    if (uploadImageKit.ok) {
-      const result = await uploadImageKit.json();
+    if (!uploadImageKit.ok) {
+      throw new InternalServerErrorException()
+    }
 
-      await this.prisma.mediaInformation.create({
-        data: { ext_img_id: result.fileId, img_url: result.url },
-      });
+    const result = await uploadImageKit.json();
 
-      const resp: WebResponseDto = {
-        message: 'Success',
-      };
+    await this.prisma.mediaInformation.create({
+      data: { ext_img_id: result.fileId, img_url: result.url },
+    });
 
-      return resp;
+    return {
+      message: 'Success',
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<ResponseMediaDto[]> {
     const mediaData = await this.prisma.mediaInformation.findMany();
 
-    const resp: ResponseMediaDto = {
-      data: mediaData,
-    };
-    return resp;
+    return mediaData;
   }
 
-  async update(id: number, authorization: string, file: any) {
+  async update(id: number, authorization: string, file: any): Promise<WebResponseDto> {
     const mediaData = await this.prisma.mediaInformation.findUnique({
       where: { id },
     });
@@ -110,9 +106,6 @@ export class MediaInformationService {
       return res;
     };
 
-    const resp: WebResponseDto = {
-      message: 'Success',
-    };
 
     if ((await deleteImageKit()).status === 204) {
       const result = await (await uploadImageKit()).json();
@@ -121,13 +114,15 @@ export class MediaInformationService {
         data: { ext_img_id: result.fileId, img_url: result.url },
       });
 
-      return resp;
+      return {
+        message: 'Success',
+      };
     }
 
     throw new InternalServerErrorException();
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<WebResponseDto> {
     const mediaData = await this.prisma.mediaInformation.findUnique({
       where: { id },
     });
@@ -144,11 +139,10 @@ export class MediaInformationService {
 
     if (deleteImageKit.status === 204) {
       await this.prisma.mediaInformation.delete({ where: { id } });
-      const resp: WebResponseDto = {
+
+      return {
         message: 'Success',
       };
-
-      return resp;
     }
 
     throw new InternalServerErrorException();

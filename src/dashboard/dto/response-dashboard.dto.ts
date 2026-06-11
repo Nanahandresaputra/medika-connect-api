@@ -58,7 +58,7 @@ class AppointmentStatisticDto {
 /**
  * Main Dashboard Response DTO matching your exact structure
  */
-class ResultDashboardDto {
+export class ResponseDashboarddDto {
   @IsNumber()
   totalDoctorActive!: number;
 
@@ -84,8 +84,4 @@ class ResultDashboardDto {
   apoitmentStatistic!: AppointmentStatisticDto[];
 }
 
-export class ResponseDashboarddDto extends PartialType(WebResponseDto) {
-  @ValidateNested()
-  @Type(() => ResultDashboardDto)
-  data: ResultDashboardDto;
-}
+

@@ -22,6 +22,8 @@ import {
   AppAbility,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { MediaInformationPolicies } from 'src/casl/policies.entity';
+import { WebResponseDto } from 'src/common-dto/web-response.dto';
+import { ResponseMediaDto } from './dto/response-media.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -29,7 +31,7 @@ import { MediaInformationPolicies } from 'src/casl/policies.entity';
 export class MediaInformationController {
   constructor(
     private readonly mediaInformationService: MediaInformationService,
-  ) {}
+  ) { }
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Manage, MediaInformationPolicies),
@@ -40,7 +42,7 @@ export class MediaInformationController {
   create(
     @Headers('Authorization') authorization: string,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<WebResponseDto> {
     return this.mediaInformationService.create(authorization, file);
   }
 
@@ -48,11 +50,11 @@ export class MediaInformationController {
     ability.can(
       Action.Manage,
       MediaInformationPolicies ||
-        ability.can(Action.Read, MediaInformationPolicies),
+      ability.can(Action.Read, MediaInformationPolicies),
     ),
   )
   @Get()
-  findAll() {
+  findAll(): Promise<ResponseMediaDto[]> {
     return this.mediaInformationService.findAll();
   }
 
@@ -66,7 +68,7 @@ export class MediaInformationController {
     @Param('id') id: string,
     @Headers('Authorization') authorization: string,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<WebResponseDto> {
     return this.mediaInformationService.update(+id, authorization, file);
   }
 
@@ -74,7 +76,7 @@ export class MediaInformationController {
     ability.can(Action.Manage, MediaInformationPolicies),
   )
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<WebResponseDto> {
     return this.mediaInformationService.remove(+id);
   }
 }

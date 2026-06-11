@@ -1,9 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { WebResponseDto } from 'src/common-dto/web-response.dto';
+import {  IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 
-export class ResultSpecializationDto {
+export class ResponseSpecializationDto {
   @IsNotEmpty()
   @IsString()
   id: number;
@@ -11,11 +8,4 @@ export class ResultSpecializationDto {
   @IsNotEmpty()
   @IsString()
   name: string;
-}
-
-export class ResponseSpecializationDto extends PartialType(WebResponseDto) {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResultSpecializationDto)
-  data: ResultSpecializationDto[];
 }

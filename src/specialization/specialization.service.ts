@@ -3,25 +3,23 @@ import { PrismaService } from 'src/prisma-connect/prisma.service';
 import { RequestCreateSpecializationDto } from './dto/request-create-specialization.dto';
 import { WebResponseDto } from 'src/common-dto/web-response.dto';
 import { WebFilterDto } from 'src/common-dto/web-filter.dto';
-import { ResponseSpecializationDto } from './dto/response-specialization.dto';
 import { RequestUpdateSpecializationDto } from './dto/request-update-specialization.dto';
+import { ResponseSpecializationDto } from './dto/response-specialization.dto';
 
 @Injectable()
 export class SpecializationService {
-  constructor(private prisma: PrismaService) {}
-  async create(createSpecializationDto: RequestCreateSpecializationDto) {
+  constructor(private prisma: PrismaService) { }
+  async create(createSpecializationDto: RequestCreateSpecializationDto): Promise<WebResponseDto> {
     await this.prisma.specialization.create({
       data: createSpecializationDto,
     });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-
-    return resp;
   }
 
-  async findAll({ page, limit, search }: WebFilterDto) {
+  async findAll({ page, limit, search }: WebFilterDto): Promise<ResponseSpecializationDto[]> {
     const specializationList = await this.prisma.specialization.findMany({
       where: {
         ...(search && {
@@ -33,22 +31,20 @@ export class SpecializationService {
       },
       ...(page &&
         limit && {
-          skip: limit * (page - 1),
-        }),
+        skip: limit * (page - 1),
+      }),
       ...(page && limit && { take: limit }),
     });
 
-    const resp: ResponseSpecializationDto = {
-      data: specializationList,
-    };
 
-    return resp;
+
+    return specializationList;
   }
 
   async update(
     id: number,
     updateSpecializationDto: RequestUpdateSpecializationDto,
-  ) {
+  ): Promise<WebResponseDto> {
     await this.prisma.specialization.update({
       data: { name: updateSpecializationDto.name },
       where: { id },
@@ -64,10 +60,8 @@ export class SpecializationService {
   async remove(id: number) {
     await this.prisma.specialization.delete({ where: { id } });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-
-    return resp;
   }
 }

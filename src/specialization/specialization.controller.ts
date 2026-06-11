@@ -23,6 +23,8 @@ import { SpecializationPolicies } from 'src/casl/policies.entity';
 import { RequestCreateSpecializationDto } from './dto/request-create-specialization.dto';
 import { RequestUpdateSpecializationDto } from './dto/request-update-specialization.dto';
 import { WebFilterDto } from 'src/common-dto/web-filter.dto';
+import { WebResponseDto } from 'src/common-dto/web-response.dto';
+import { ResponseSpecializationDto } from './dto/response-specialization.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -35,7 +37,7 @@ export class SpecializationController {
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createSpecializationDto: RequestCreateSpecializationDto) {
+  create(@Body() createSpecializationDto: RequestCreateSpecializationDto) : Promise<WebResponseDto> {
     return this.specializationService.create(createSpecializationDto);
   }
 
@@ -45,7 +47,7 @@ export class SpecializationController {
       ability.can(Action.Read, SpecializationPolicies),
   )
   @Get()
-  findAll(@Query() filterDto: WebFilterDto) {
+  findAll(@Query() filterDto: WebFilterDto) : Promise<ResponseSpecializationDto[]> {
     return this.specializationService.findAll(filterDto);
   }
 
@@ -57,7 +59,7 @@ export class SpecializationController {
   update(
     @Param('id') id: string,
     @Body() updateSpecializationDto: RequestUpdateSpecializationDto,
-  ) {
+  ) : Promise<WebResponseDto> {
     return this.specializationService.update(+id, updateSpecializationDto);
   }
 

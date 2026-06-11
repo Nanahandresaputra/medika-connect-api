@@ -15,8 +15,8 @@ export class AppoitmentService {
   constructor(
     private helpers: HelpersService,
     private prisma: PrismaService,
-  ) {}
-  async create(createAppoitmentDto: RequestCreateAppoitmentDto) {
+  ) { }
+  async create(createAppoitmentDto: RequestCreateAppoitmentDto): Promise<WebResponseDto> {
     const doctor_name = await this.prisma.doctor.findUnique({
       where: { id: createAppoitmentDto.doctor_id },
     });
@@ -30,11 +30,9 @@ export class AppoitmentService {
       },
     });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-
-    return resp;
   }
 
   async findAll({
@@ -45,7 +43,7 @@ export class AppoitmentService {
     startDate,
     endDate,
     search,
-  }: WebFilterDto) {
+  }: WebFilterDto): Promise<ResponseAppoitmentDto[]> {
     const appoitmentData = await this.prisma.appoitment.findMany({
       where: {
         ...(doctorId && { doctor_id: doctorId }),
@@ -53,11 +51,11 @@ export class AppoitmentService {
         ...(search && { appoitment_code: search }),
         ...(startDate &&
           endDate && {
-            date_time: {
-              gte: moment(`${startDate} 00:00`).format('YYYY-MM-DD HH:mm'),
-              lte: moment(`${endDate} 23:59`).format('YYYY-MM-DD HH:mm'),
-            },
-          }),
+          date_time: {
+            gte: moment(`${startDate} 00:00`).format('YYYY-MM-DD HH:mm'),
+            lte: moment(`${endDate} 23:59`).format('YYYY-MM-DD HH:mm'),
+          },
+        }),
       },
       ...(limit && page && { skip: limit * (page - 1) }),
       ...(limit && page && { take: limit }),
@@ -73,31 +71,27 @@ export class AppoitmentService {
       },
     });
 
-    const respData: ResponseAppoitmentDto = {
-      data: appoitmentData.map((data) => ({
-        id: data.id,
-        doctor: data.doctor.name,
-        patient: data.patient.name,
-        category: data.doctor.specialization.name,
-        date_time: data.date_time,
-        appoitment_code: data.appoitment_code,
-        status: data.status,
-      })),
-    };
+    return appoitmentData.map((data) => ({
+      id: data.id,
+      doctor: data.doctor.name,
+      patient: data.patient.name,
+      category: data.doctor.specialization.name,
+      date_time: data.date_time,
+      appoitment_code: data.appoitment_code,
+      status: data.status,
+    }))
 
-    return respData;
   }
 
-  async update(id: number, uppdateAppoitmentDto: RequestUpdateAppoitmentDto) {
+  async update(id: number, uppdateAppoitmentDto: RequestUpdateAppoitmentDto): Promise<WebResponseDto> {
     await this.prisma.appoitment.update({
       where: { id },
       data: uppdateAppoitmentDto,
     });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-    return resp;
   }
 
   @Cron('0 30 00 * * 1-7') // real scheduller date and time => everyday 00:30 triggered

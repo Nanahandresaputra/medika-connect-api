@@ -24,6 +24,8 @@ import { ApiProperty, ApiQuery } from '@nestjs/swagger';
 import { RequestCreateUserDto } from './dto/request-create-user.dto';
 import { WebFilterDto } from 'src/common-dto/web-filter.dto';
 import { RequestUpdateUserDto } from './dto/request-update-user.dto';
+import { WebResponseDto } from 'src/common-dto/web-response.dto';
+import { ResponseUserDto } from './dto/response-user.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
@@ -36,7 +38,7 @@ export class UserController {
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createUserDto: RequestCreateUserDto) {
+  create(@Body() createUserDto: RequestCreateUserDto) : Promise<WebResponseDto>  {
     return this.userService.create(createUserDto);
   }
 
@@ -48,7 +50,7 @@ export class UserController {
   // @ApiQuery({ name: 'limit', required: false })
   // @ApiQuery({ name: 'roleUser', required: false })
   // @ApiQuery({ name: 'search', required: false })
-  findAll(@Query() filterDto: WebFilterDto) {
+  findAll(@Query() filterDto: WebFilterDto) : Promise<ResponseUserDto[]>  {
     return this.userService.findAll(filterDto);
   }
 
@@ -57,7 +59,7 @@ export class UserController {
   )
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateUserDto: RequestUpdateUserDto) {
+  update(@Param('id') id: string, @Body() updateUserDto: RequestUpdateUserDto) : Promise<WebResponseDto>  {
     return this.userService.update(+id, updateUserDto);
   }
 
@@ -65,7 +67,7 @@ export class UserController {
     ability.can(Action.Delete, UsersPolicies),
   )
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) : Promise<WebResponseDto>  {
     return this.userService.remove(+id);
   }
 }

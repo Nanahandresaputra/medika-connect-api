@@ -1,4 +1,3 @@
-import { AuthTableDataInterface } from './types/auth.interface';
 import {
   BadRequestException,
   Injectable,
@@ -18,8 +17,8 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private helpers: HelpersService,
-  ) {}
-  async login(loginDto: RequestLoginDto, forCustomer: boolean) {
+  ) { }
+  async login(loginDto: RequestLoginDto, forCustomer: boolean): Promise<WebResponseDto> {
     const user = await this.prisma.users.findUnique({
       where: {
         username: loginDto.username,
@@ -47,17 +46,18 @@ export class AuthService {
           },
         },
       );
-      const saveAuthData: AuthTableDataInterface = {
+      const saveAuthData = {
         user_id: user.id,
         doctor_id: null,
         token,
       };
       await this.prisma.auth.create({ data: saveAuthData });
 
-      const resp: WebResponseDto = {
+
+      return {
         token: token ?? '',
       };
-      return resp;
+
     } else if (
       doctor &&
       this.helpers.bcryptComapre(loginDto.password, doctor.password)
@@ -77,22 +77,24 @@ export class AuthService {
           },
         },
       );
-      const saveAuthData: AuthTableDataInterface = {
+      const saveAuthData = {
         user_id: null,
         doctor_id: doctor.id,
         token,
       };
+
       await this.prisma.auth.create({ data: saveAuthData });
-      const resp: WebResponseDto = {
+
+      return {
         token: token ?? '',
       };
-      return resp;
+
     } else {
       throw new UnauthorizedException('Username or Passwor Invalid!');
     }
   }
 
-  async register(registerDto: RequestRegisterDto) {
+  async register(registerDto: RequestRegisterDto): Promise<WebResponseDto> {
     const doctor = await this.prisma.doctor.findUnique({
       where: { username: registerDto.username },
     });
@@ -112,20 +114,18 @@ export class AuthService {
       },
     });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
     };
-
-    return resp;
   }
 
-  async logout(authorization: string) {
+  async logout(authorization: string): Promise<WebResponseDto> {
     const token = authorization.replace('Bearer ', '');
-    await this.prisma.auth.delete({ where: { token } });
-    const resp: WebResponseDto = {
-      message: 'Success',
-    };
 
-    return resp;
+    await this.prisma.auth.delete({ where: { token } });
+
+    return {
+      message: 'Success',
+    }
   }
 }

@@ -8,10 +8,9 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { WebResponseDto } from 'src/common-dto/web-response.dto';
-import { ResultSpecializationDto } from 'src/specialization/dto/response-specialization.dto';
+import { ResponseSpecializationDto } from 'src/specialization/dto/response-specialization.dto';
 
-class ResultDoctorDto {
+export class ResponseDoctorDto {
   @IsNotEmpty()
   @IsInt()
   id: number;
@@ -43,8 +42,8 @@ class ResultDoctorDto {
 
   @IsNotEmpty()
   @ValidateNested()
-  @Type(() => ResultSpecializationDto)
-  specialization: ResultSpecializationDto;
+  @Type(() => ResponseSpecializationDto)
+  specialization: ResponseSpecializationDto;
 
   @IsNotEmpty()
   @IsInt()
@@ -57,11 +56,4 @@ class ResultDoctorDto {
   @IsNotEmpty()
   @IsString()
   img_profile: string;
-}
-
-export class ResponseDoctorDto extends PartialType(WebResponseDto) {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResultDoctorDto)
-  data: ResultDoctorDto[];
 }

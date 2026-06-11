@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { WebResponseDto } from 'src/common-dto/web-response.dto';
 
-class AppoitmentDataDto {
+export class ResponseAppoitmentDto {
   @IsNotEmpty()
   @IsInt()
   id: number;
@@ -33,10 +33,4 @@ class AppoitmentDataDto {
   @IsNotEmpty()
   @IsString()
   appoitment_code: string;
-}
-
-export class ResponseAppoitmentDto extends PartialType(WebResponseDto) {
-  @ValidateNested({ each: true })
-  @Type(() => AppoitmentDataDto)
-  data: AppoitmentDataDto[];
 }

@@ -39,7 +39,7 @@ export class SpecializationScheduleDto {
   name: string;
 }
 
-export class ResultScheduleByDoctor {
+export class ResponseScheduleByDoctor {
   @IsNotEmpty()
   @IsInt()
   id: number;
@@ -58,16 +58,3 @@ export class ResultScheduleByDoctor {
   schedule: ScheduleTimeDateDto[];
 }
 
-export class ResponseScheduleByDoctor extends PartialType(WebResponseDto) {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResultScheduleByDoctor)
-  data: ResultScheduleByDoctor[];
-}
-
-export class ResponseScheduleByDoctorOne extends PartialType(WebResponseDto) {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResultScheduleByDoctor)
-  data: ResultScheduleByDoctor;
-}

@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { WebResponseDto } from 'src/common-dto/web-response.dto';
 
-class ResultPatientDto {
+export class ResponsePatientDto {
   @IsNotEmpty()
   @IsInt()
   id: number;
@@ -43,9 +43,3 @@ class ResultPatientDto {
   user_id: number;
 }
 
-export class ResponsePatientDto extends PartialType(WebResponseDto) {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResultPatientDto)
-  data: ResultPatientDto[];
-}

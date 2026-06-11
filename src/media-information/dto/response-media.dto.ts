@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { WebResponseDto } from 'src/common-dto/web-response.dto';
 
-class ResultMediaDto {
+export class ResponseMediaDto {
   @IsNotEmpty()
   @IsInt()
   id: number;
@@ -25,11 +25,4 @@ class ResultMediaDto {
   @IsNotEmpty()
   @IsString()
   img_url: string;
-}
-
-export class ResponseMediaDto extends PartialType(WebResponseDto) {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResponseMediaDto)
-  data: ResultMediaDto[];
 }

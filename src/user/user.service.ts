@@ -12,8 +12,8 @@ export class UserService {
   constructor(
     private prisma: PrismaService,
     private helpers: HelpersService,
-  ) {}
-  async create(createUserDto: RequestCreateUserDto) {
+  ) { }
+  async create(createUserDto: RequestCreateUserDto): Promise<WebResponseDto> {
     const doctor = await this.prisma.doctor.findUnique({
       where: { email: createUserDto.email },
     });
@@ -31,14 +31,13 @@ export class UserService {
         },
       });
 
-      const resp: WebResponseDto = {
+      return {
         message: 'Success',
-      };
-      return resp;
+      }
     }
   }
 
-  async findAll({ limit, page, search, roleUser }: WebFilterDto) {
+  async findAll({ limit, page, search, roleUser }: WebFilterDto): Promise<ResponseUserDto[]> {
     const users = await this.prisma.users.findMany({
       where: {
         ...(search && { name: { contains: search, mode: 'insensitive' } }),
@@ -46,26 +45,22 @@ export class UserService {
       },
       ...(page &&
         limit && {
-          skip: limit * (page - 1),
-        }),
+        skip: limit * (page - 1),
+      }),
       ...(page && limit && { take: limit }),
     });
 
-    const resp: ResponseUserDto = {
-      data: users.map((data) => ({
-        id: data.id,
-        name: data.name,
-        username: data.username,
-        email: data.email,
-        role: data.role as roleUser,
-        status: data.status,
-      })),
-    };
-
-    return resp;
+    return users.map((data) => ({
+      id: data.id,
+      name: data.name,
+      username: data.username,
+      email: data.email,
+      role: data.role as roleUser,
+      status: data.status,
+    }));
   }
 
-  async update(id: number, updateUserDto: RequestUpdateUserDto) {
+  async update(id: number, updateUserDto: RequestUpdateUserDto): Promise<WebResponseDto> {
     const doctor = await this.prisma.doctor.findUnique({
       where: { email: updateUserDto.email },
     });
@@ -86,19 +81,17 @@ export class UserService {
         },
         where: { id },
       });
-      const resp: WebResponseDto = {
+      return {
         message: 'Success',
-      };
-      return resp;
+      }
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<WebResponseDto> {
     await this.prisma.users.delete({ where: { id } });
 
-    const resp: WebResponseDto = {
+    return {
       message: 'Success',
-    };
-    return resp;
+    }
   }
 }

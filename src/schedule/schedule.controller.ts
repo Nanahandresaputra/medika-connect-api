@@ -23,19 +23,21 @@ import { SchedulePolicies } from 'src/casl/policies.entity';
 import { RequestCreateScheduleDto } from './dto/request-create-schedule.dto';
 import { RequestUpdateScheduleDto } from './dto/request-update-schedule.dto';
 import { WebFilterDto } from 'src/common-dto/web-filter.dto';
+import { WebResponseDto } from 'src/common-dto/web-response.dto';
+import { ResponseScheduleByDoctor } from './dto/response-schedule.dto';
 
 @UseGuards(AuthGuard)
 @UseGuards(PoliciesGuard)
 @Controller('schedule')
 export class ScheduleController {
-  constructor(private readonly scheduleService: ScheduleService) {}
+  constructor(private readonly scheduleService: ScheduleService) { }
 
   @CheckPolicies((ability: AppAbility) =>
     ability.can(Action.Manage, SchedulePolicies),
   )
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createScheduleDto: RequestCreateScheduleDto) {
+  create(@Body() createScheduleDto: RequestCreateScheduleDto): Promise<WebResponseDto> {
     return this.scheduleService.create(createScheduleDto);
   }
 
@@ -45,7 +47,7 @@ export class ScheduleController {
       ability.can(Action.Read, SchedulePolicies),
   )
   @Get()
-  findAll(@Query() filterDto: WebFilterDto) {
+  findAll(@Query() filterDto: WebFilterDto): Promise<ResponseScheduleByDoctor[]> {
     return this.scheduleService.findAll(filterDto);
   }
 
@@ -55,7 +57,7 @@ export class ScheduleController {
       ability.can(Action.Read, SchedulePolicies),
   )
   @Get(':doctor_id')
-  findOne(@Param('doctor_id') doctor_id: string) {
+  findOne(@Param('doctor_id') doctor_id: string): Promise<ResponseScheduleByDoctor> {
     return this.scheduleService.findOneByDoctor(+doctor_id);
   }
 
@@ -67,7 +69,7 @@ export class ScheduleController {
   update(
     @Param('doctor_id') doctor_id: string,
     @Body() updateScheduleDto: RequestUpdateScheduleDto,
-  ) {
+  ): Promise<WebResponseDto> {
     return this.scheduleService.update(+doctor_id, updateScheduleDto);
   }
 }
